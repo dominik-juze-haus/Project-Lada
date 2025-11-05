@@ -29,7 +29,12 @@ For demonstration, the project utilizes basic HC-SR04 ultrasonic sensors. Though
 For practical use, a weather sealed IP rated version of the HC ultrasonic sensors would be used.
 
 Camera
-Since image decoding and processing uses a lot more processing power than that of an Atmega328p microcontroller, a Raspberry Pi board would be use to decode the image and simultaneously to run the standalone infotainment. For demonstration purposes, the turning on camera signal is being sent via I2C to another Arduino in place of the Raspberry.
+Since image decoding and processing uses a lot more processing power than that of an Atmega328p microcontroller, a Raspberry Pi board would be use to decode the image and simultaneously to run the standalone infotainment. At least an HD resolution camera with decent low light capabilities would be used. We find solutions like arducam unsatisfactory due to their low performance. For demonstration purposes, the turning on camera signal is being sent via I2C to another Arduino in place of the Raspberry.
 
-## Water and Oil temperature
-This particular car model doesn't have a reliable oil temperature readings and water temperature doesn't seem to be precise. Old carburetor cars are prone to overheating, especialy those from the eastern block. Temperature
+### Water and Oil temperature
+This particular car model doesn't have a reliable oil temperature readings and water temperature doesn't seem to be precise. Old carburetor cars are prone to overheating, especialy those from the eastern block. Temperature monitoring is then crucial for the car health and the owners wallets.
+
+The readings will be obtained by utilizing an analog thermal sensors placed onto the water and oil reservoir, measuring their resistance and calculating the temperatures from those values.
+
+Hardware solution
+For both practical and demonstration purposes, the system uses PT1000 sensors read by the Arduino's AD converter.
