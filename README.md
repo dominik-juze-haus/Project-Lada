@@ -42,4 +42,8 @@ For both practical and demonstration purposes, the system uses PT1000 sensors re
 ### RPM and Speed readings
 Lada 1300 misses a tachometer and uses only a speed gauge. Retrofiting it with a digital system will ensure optimal shifting timing and give the driver more options to monitor the speed, set custom alerts or display statistics.
 
-The module   
+The module
+
+Hardware solution
+RPM measuring - reading the voltage difference between the alternator and ditributor/halls sensor
+Speed measuring - halls sensor/optical switch
