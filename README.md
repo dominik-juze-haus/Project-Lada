@@ -38,3 +38,8 @@ The readings will be obtained by utilizing an analog thermal sensors placed onto
 
 Hardware solution
 For both practical and demonstration purposes, the system uses PT1000 sensors read by the Arduino's AD converter.
+
+### RPM and Speed readings
+Lada 1300 misses a tachometer and uses only a speed gauge. Retrofiting it with a digital system will ensure optimal shifting timing and give the driver more options to monitor the speed, set custom alerts or display statistics.
+
+The module   
