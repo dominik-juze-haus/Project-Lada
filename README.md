@@ -21,6 +21,15 @@ Optional ambitious features are:
 Parking system is nowadays a standard feature in most new cars. It improves precision and awareness to the driver while navigating the car into parking spots or tight spaces. This goes particulary handy for vintage cars, because not only they carry a substantial value to the owners, but the outside visibility is also often very limited. For example, Lada 1300 has only a left mirror.
 
 At the core concept, when the system is triggered, it starts a camera and graphicaly displays distances from obstacles in a clever and understandable manner.
-Distances from the car are measured by 4 ultrasonic sensors evenly spaced out in a line to ensure optimal coverage. A wide angle camera is placed at an angle to capture the entire area behind the car.
+Distances from the car are measured by 4 ultrasonic sensors evenly spaced out in a line to ensure optimal coverage. Camera hardware would be operated by a standalone infotainment, which will display the camera output on a screen when instructed by the arduino via I2C. A wide angle camera is placed at an angle to capture the entire area behind the car.
 
-For demonstration, the project utilizes 
+Hardware solution
+Sensors
+For demonstration, the project utilizes basic HC-SR04 ultrasonic sensors. Though those would be unsuitable for practical use due to their lack of any IP rating and therefore water and dust resistance that is a common occurence on the road. 
+For practical use, a weather sealed IP rated version of the HC ultrasonic sensors would be used.
+
+Camera
+Since image decoding and processing uses a lot more processing power than that of an Atmega328p microcontroller, a Raspberry Pi board would be use to decode the image and simultaneously to run the standalone infotainment. For demonstration purposes, the turning on camera signal is being sent via I2C to another Arduino in place of the Raspberry.
+
+## Water and Oil temperature
+This particular car model doesn't have a reliable oil temperature readings and water temperature doesn't seem to be precise. Old carburetor cars are prone to overheating, especialy those from the eastern block. Temperature
