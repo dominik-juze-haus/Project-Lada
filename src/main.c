@@ -1,24 +1,3 @@
-/*
- * Implementation of LFSR-based (Linear Feedback Shift Register) 
- * pseudo-random generator in AVR assembly.
- * (c) 2017-2025 Tomas Fryza, MIT license
- *
- * Developed using PlatformIO and Atmel AVR platform.
- * Tested on Arduino Uno board and ATmega328P, 16 MHz.
- * 
- * NOTE:
- *   To see assembly listing, run the following command in Terminal
- *   after the compilation.
- * 
- *   Windows:
- *   C:\Users\YOUR-LOGIN\.platformio\packages\toolchain-atmelavr\bin\avr-objdump -S -d -m avr .pio/build/uno/firmware.elf > firmware.lst
- * 
- *   Linux, Mac:
- *   ~/.platformio/packages/toolchain-atmelavr/bin/avr-objdump -S -d -m avr .pio/build/uno/firmware.elf > firmware.lst
- * 
- * SEE ALSO:
- *   https://five-embeddev.com/baremetal/platformio/
- */
 
 // -- Includes ---------------------------------------------
 #include <avr/io.h>         // AVR device-specific IO definitions
