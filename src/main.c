@@ -15,10 +15,7 @@
 
 
 // -- Defines ----------------------------------------------
-<<<<<<< Updated upstream
-=======
 // Parking sensor pins
->>>>>>> Stashed changes
 #define PARKING_SENSOR_trigger_DDR   DDRB // Data Direction Register for Trigger pin
 #define PARKING_SENSOR_trigger_PORT  PORTB // Port Register for Trigger pin
 #define PARKING_SENSOR_trigger_PIN   PB0 // Trigger pin for both sensors
@@ -27,8 +24,6 @@
 #define PARKING_SENSOR_echo_PIN3     PB3 // Echo pin for Right inner sensor
 #define PARKING_SENSOR_echo_PIN4     PB4 // Echo pin for Right outer sensor
 
-<<<<<<< Updated upstream
-=======
 // Rotary encoder pins
 #define RTENC_DDR    DDRD // Data Direction Register for Rotary encoder
 #define RTENC_PORT   PORTD // Port Register for Rotary encoder
@@ -37,7 +32,6 @@
 #define RTENC_CLK_PIN    PD7 // Pin CLK for Rotary encoder
 
 
->>>>>>> Stashed changes
 /*
 #define MAX_MATRIX_DDR      DDRC // Data Direction Register for MAX7219
 #define MAX_MATRIX_PORT     PORTC // Port Register for MAX7219
@@ -60,12 +54,9 @@ volatile uint8_t display_update_flag = 0; // Flag to indicate display update
 
 volatile uint8_t oled_switch_page = 0; // OLED display page switch flag
 volatile uint8_t oled_current_page = 0; // OLED current page index
-<<<<<<< Updated upstream
-=======
 volatile uint8_t oled_last_page = 0; // OLED last page index
 
 volatile uint8_t rtenc[2]; // Flag to start ADC conversion
->>>>>>> Stashed changes
 // -- Function definitions ---------------------------------
 /*
  * Function: Main function where the program execution begins
@@ -91,15 +82,6 @@ int main(void)
     oled_init(OLED_DISP_ON); // Initialize OLED display
     oled_clrscr(); // Clear the display
     oled_charMode(NORMALSIZE);
-<<<<<<< Updated upstream
-    // -----------------------------DEMO SETTINGS-----------------------------
-    // Switch sensors ON
-    sensor_switch_ON_OFF = 1;
-    oled_switch_page = 1;
-    oled_current_page = 1;
-    // -----------------------------------------------------------------------
-
-=======
 
     // Configure Rotary encoder button pin as input with pull-up
     GPIO_mode_input_pullup(&RTENC_DDR, RTENC_button_PIN);
@@ -118,26 +100,17 @@ int main(void)
     oled_current_page = 0; // current OLED page index
     // -----------------------------------------------------------------------
     
->>>>>>> Stashed changes
 
     // Initialize parking sensor data
     for (uint8_t i = 0; i < 4; i++)
     {
         parking_sensor_data[i] = 0;
     }
-<<<<<<< Updated upstream
-    // Initialize sensor trigger state
-    sensor_trigger = 0;
-=======
     
->>>>>>> Stashed changes
 
 
     // Infinite empty loop
     while (1)
-<<<<<<< Updated upstream
-    {
-=======
     {  rtenc[0] = GPIO_read(&PIND, RTENC_DT_PIN); //// To do: Read Rotary encoder !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
        rtenc[1] = GPIO_read(&PIND, RTENC_CLK_PIN);
        itoa(rtenc[0], NULL, 10);
@@ -163,17 +136,10 @@ int main(void)
           }
           _delay_ms(30); // Debounce delay
       }
->>>>>>> Stashed changes
       if (oled_switch_page == 1)
       {
           // Switch OLED display page
           oled_clrscr(); // Clear the display
-<<<<<<< Updated upstream
-          if (oled_current_page == 1)
-          {
-              oled_gotoxy(0, 0);
-              oled_puts("Parking Sensors");
-=======
 
           // RPM page
           if (oled_current_page == 0)
@@ -206,7 +172,6 @@ int main(void)
               oled_puts("Parking Sensors");
               oled_display();
               /*
->>>>>>> Stashed changes
               oled_gotoxy(0, 2);
               oled_puts("Left Outer:");
               oled_gotoxy(0, 3);
@@ -216,20 +181,13 @@ int main(void)
               oled_gotoxy(0, 5);
               oled_puts("Right Outer:");
               oled_display();
-<<<<<<< Updated upstream
-=======
               */
->>>>>>> Stashed changes
           }
           oled_switch_page = 0; // Reset the flag
       }
       if (sensor_switch_ON_OFF == 1)
-<<<<<<< Updated upstream
-      {
-=======
       {   
           
->>>>>>> Stashed changes
           // Trigger parking sensors every 100ms
           if (sensor_trigger == 0)
           {
@@ -250,33 +208,6 @@ int main(void)
       }
       if (display_update_flag == 1)
       {
-<<<<<<< Updated upstream
-          
-          char uart_buffer[50]; // Buffer for UART transmission
-
-          sprintf(uart_buffer, "Sensors: %d cm %d cm %d cm %d cm\r\n",
-          parking_sensor_data[0]*16/58,
-          parking_sensor_data[1]*16/58,
-          parking_sensor_data[2]*16/58,
-          parking_sensor_data[3]*16/58);
-          uart_puts(uart_buffer);
-          // Update OLED display
-          oled_gotoxy(12, 2);
-          sprintf(uart_buffer, "%d cm   ", parking_sensor_data[0]*16/58);
-          oled_puts(uart_buffer);
-          oled_gotoxy(12, 3);
-          sprintf(uart_buffer, "%d cm   ", parking_sensor_data[1]*16/58);
-          oled_puts(uart_buffer);
-          oled_gotoxy(12, 4);
-          sprintf(uart_buffer, "%d cm   ", parking_sensor_data[2]*16/58);
-          oled_puts(uart_buffer);
-          oled_gotoxy(12, 5);
-          sprintf(uart_buffer, "%d cm   ", parking_sensor_data[3]*16/58);
-          oled_puts(uart_buffer);
-          oled_display();
-
-          display_update_flag = 0; // Reset the flag
-=======
           if (sensor_switch_ON_OFF == 1)
           {
           
@@ -339,7 +270,6 @@ int main(void)
 
             display_update_flag = 0; // Reset the flag
         }
->>>>>>> Stashed changes
       }
       
     }
