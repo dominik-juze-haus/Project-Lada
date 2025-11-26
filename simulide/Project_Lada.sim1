@@ -1,6 +1,4 @@
-<circuit version="1.1.0-SR1" rev="2005" stepSize="1000000" stepsPS="1000000" NLsteps="100000" reaStep="1000000" animate="0" >
-
-<item itemtype="MCU" CircId="mega328-1" mainComp="false" Show_id="true" Show_Val="false" Pos="-560,264" rotation="90" hflip="1" vflip="-1" label="mega328-1" idLabPos="6.99541,176.837" labelrot="-90" valLabPos="-16,20" valLabRot="0" Frequency="16 MHz" Auto_Load="false" saveEepr="true" Logic_Symbol="false" Rst_enabled="false" Ext_Osc="false" Wdt_enabled="false" Clk_Out="false" MainMcu="true" SerialMon="-1" />
+<circuit version="1.1.0-SR1" rev="2005" stepSize="1000000" stepsPS="1000000" NLsteps="100000" reaStep="100000" animate="0" >
 
 <item itemtype="SR04" CircId="SR04-3" mainComp="false" Show_id="false" Show_Val="false" Pos="-832,-28" rotation="0" hflip="1" vflip="1" label="SR04-3" idLabPos="-16,-48" labelrot="0" valLabPos="-16,20" valLabRot="0" />
 
@@ -12,90 +10,112 @@
 
 <item itemtype="Voltage Source" CircId="Voltage Source-13" mainComp="false" ShowProp="MaxValue" Show_id="false" Show_Val="true" Pos="-952,-68" rotation="0" hflip="1" vflip="1" label="Voltage Source-13" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="true" Value_Volt="2.195 V" MaxValue="5 V" MinValue="0 V" />
 
-<item itemtype="Voltage Source" CircId="Voltage Source-14" mainComp="false" ShowProp="MaxValue" Show_id="false" Show_Val="true" Pos="-720,-64" rotation="0" hflip="1" vflip="1" label="Voltage Source-14" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="false" Value_Volt="0 V" MaxValue="5 V" MinValue="0 V" />
+<item itemtype="Voltage Source" CircId="Voltage Source-14" mainComp="false" ShowProp="MaxValue" Show_id="false" Show_Val="true" Pos="-720,-64" rotation="0" hflip="1" vflip="1" label="Voltage Source-14" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="true" Value_Volt="0.58 V" MaxValue="5 V" MinValue="0 V" />
 
-<item itemtype="Current Source" CircId="Current Source-15" mainComp="false" ShowProp="MaxValue" Show_id="false" Show_Val="true" Pos="-488,-64" rotation="0" hflip="1" vflip="1" label="Current Source-15" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="false" Value_Amp="0 A" MaxValue="1 A" />
+<item itemtype="Voltage Source" CircId="Voltage Source-16" mainComp="false" ShowProp="MaxValue" Show_id="false" Show_Val="true" Pos="-256,-64" rotation="0" hflip="1" vflip="1" label="Voltage Source-16" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="true" Value_Volt="2.34 V" MaxValue="5 V" MinValue="0 V" />
 
-<item itemtype="Voltage Source" CircId="Voltage Source-16" mainComp="false" ShowProp="MaxValue" Show_id="false" Show_Val="true" Pos="-256,-64" rotation="0" hflip="1" vflip="1" label="Voltage Source-16" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="false" Value_Volt="0 V" MaxValue="5 V" MinValue="0 V" />
+<item itemtype="Thermistor" CircId="Thermistor-33" mainComp="false" Show_id="true" Show_Val="false" Pos="-648,524" rotation="90" hflip="1" vflip="1" label="Oil Thermistor" idLabPos="18.3438,43.1718" labelrot="-90" valLabPos="-16,30" valLabRot="0" Temp="56.6 ºC" Min_Temp="0 ºC" Max_Temp="200 ºC" Dial_Step="0 ºC" B="3455" R25="10000 Ω" Slider="false" Scale="1" />
 
-<item itemtype="Ssd1306" CircId="Ssd1306-17" mainComp="false" Show_id="true" Show_Val="false" Pos="-428,224" rotation="0" hflip="1" vflip="1" label="Ssd1306-17" idLabPos="-32,-60" labelrot="0" valLabPos="-16,20" valLabRot="0" Color="White" Width="128 _px" Height="64 _px" Rotate="true" Control_Code="60" Frequency="100 _kHz" />
+<item itemtype="Resistor" CircId="Resistor-34" mainComp="false" ShowProp="Resistance" Show_id="false" Show_Val="true" Pos="-648,476" rotation="90" hflip="1" vflip="1" label="Resistor-34" idLabPos="-16,-24" labelrot="0" valLabPos="-16,6" valLabRot="0" Resistance="1 kΩ" />
 
-<item itemtype="Max72xx_matrix" CircId="Max72xx_matrix-19" mainComp="false" Show_id="true" Show_Val="false" Pos="-312,220" rotation="0" hflip="1" vflip="1" label="Max72xx_matrix-19" idLabPos="-32,-58" labelrot="0" valLabPos="-16,20" valLabRot="0" Color="Yellow" NumDisplays="1" />
+<item itemtype="Fixed Voltage" CircId="Fixed Voltage-37" mainComp="false" Show_id="true" Show_Val="false" Pos="-668,416" rotation="0" hflip="1" vflip="1" label="Arduino VCC 5V" idLabPos="-64,-24" labelrot="0" valLabPos="-16,8" valLabRot="0" Voltage="5 V" Out="true" />
 
-<item itemtype="Voltage Source" CircId="Voltage Source-23" mainComp="false" ShowProp="MaxValue" Show_id="true" Show_Val="true" Pos="-660,400" rotation="0" hflip="1" vflip="1" label="PT1000 Water" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="false" Value_Volt="0.13 V" MaxValue="5 V" MinValue="0 V" />
+<item itemtype="Ground" CircId="Ground-38" mainComp="false" Show_id="false" Show_Val="false" Pos="-596,608" rotation="0" hflip="1" vflip="1" label="Ground-38" idLabPos="-16,8" labelrot="0" valLabPos="-16,20" valLabRot="0" />
 
-<item itemtype="Voltage Source" CircId="Voltage Source-24" mainComp="false" ShowProp="MaxValue" Show_id="true" Show_Val="true" Pos="-596,400" rotation="0" hflip="1" vflip="1" label="PT1000 Oil" idLabPos="-17.9286,-46.6272" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="false" Value_Volt="4.65 V" MaxValue="5 V" MinValue="0 V" />
+<item itemtype="Thermistor" CircId="Thermistor-39" mainComp="false" Show_id="true" Show_Val="false" Pos="-596,524" rotation="90" hflip="1" vflip="1" label="Coolant Thermistor" idLabPos="17.1881,32.1922" labelrot="-90" valLabPos="-16,30" valLabRot="0" Temp="85.4 ºC" Min_Temp="0 ºC" Max_Temp="200 ºC" Dial_Step="0 ºC" B="3455" R25="10000 Ω" Slider="false" Scale="1" />
 
-<item itemtype="Voltage Source" CircId="Voltage Source-27" mainComp="false" ShowProp="MaxValue" Show_id="true" Show_Val="true" Pos="-496,400" rotation="0" hflip="-1" vflip="1" label="Alt - Dist - Engine RPM" idLabPos="-54.6515,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="false" Value_Volt="1.5 V" MaxValue="5 V" MinValue="0 V" />
+<item itemtype="Resistor" CircId="Resistor-40" mainComp="false" ShowProp="Resistance" Show_id="false" Show_Val="true" Pos="-596,476" rotation="90" hflip="1" vflip="1" label="Resistor-40" idLabPos="-16,-24" labelrot="0" valLabPos="-16,6" valLabRot="0" Resistance="1 kΩ" />
 
-<item itemtype="KeyPad" CircId="KeyPad-28" mainComp="false" Show_id="false" Show_Val="false" Pos="-740,276" rotation="0" hflip="1" vflip="1" label="KeyPad-28" idLabPos="-8,-16" labelrot="0" valLabPos="-16,20" valLabRot="0" Rows="2" Cols="2" Key_Labels="URLD" />
+<item itemtype="Voltage Source" CircId="Voltage Source-54" mainComp="false" ShowProp="MaxValue" Show_id="false" Show_Val="true" Pos="-488,-64" rotation="0" hflip="1" vflip="1" label="Voltage Source-54" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="true" Value_Volt="3.485 V" MaxValue="5 V" MinValue="0 V" />
 
-<item itemtype="Node" CircId="Node-10" mainComp="false" Pos="-684,232" />
+<item itemtype="Subcircuit" CircId="Uno-65" mainComp="false" Show_id="true" Show_Val="false" Pos="-532,460" rotation="-90" hflip="1" vflip="-1" label="Uno-65" idLabPos="0,-20" labelrot="0" valLabPos="-16,20" valLabRot="0" Logic_Symbol="false">
+<mainCompProps MainCompId="mega328-109" Frequency="16 MHz" Program="../.pio/build/uno/firmware.hex" Auto_Load="true" saveEepr="true" MainMcu="true" SerialMon="-1" />
+</item>
 
-<item itemtype="Node" CircId="Node-11" mainComp="false" Pos="-692,232" />
+<item itemtype="Voltage Source" CircId="Voltage Source-72" mainComp="false" ShowProp="MaxValue" Show_id="false" Show_Val="true" Pos="-492,552" rotation="0" hflip="1" vflip="1" label="Voltage Source-72" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="true" Value_Volt="1.255 V" MaxValue="5 V" MinValue="0 V" />
 
-<item itemtype="Node" CircId="Node-12" mainComp="false" Pos="-700,232" />
+<item itemtype="Ssd1306" CircId="Ssd1306-74" mainComp="false" Show_id="true" Show_Val="false" Pos="-244,316" rotation="0" hflip="1" vflip="1" label="Ssd1306-74" idLabPos="-32,-60" labelrot="0" valLabPos="-16,20" valLabRot="0" Color="White" Width="128 _px" Height="64 _px" Rotate="true" Control_Code="60" Frequency="100 _kHz" />
 
-<item itemtype="Node" CircId="Node-31" mainComp="false" Pos="-476,276" />
+<item itemtype="KY040" CircId="KY040-50" mainComp="false" ShowProp="Steps" Show_id="false" Show_Val="true" Pos="-692,308" rotation="90" hflip="-1" vflip="-1" label="KY040-50" idLabPos="-34,20" labelrot="-90" valLabPos="-16,20" valLabRot="0" Steps="1" />
 
-<item itemtype="Node" CircId="Node-32" mainComp="false" Pos="-468,284" />
+<item itemtype="Node" CircId="Node-11" mainComp="false" Pos="-692,224" />
 
-<item itemtype="Connector" uid="Connector-3" startpinid="SR04-3-outpin" endpinid="mega328-1-PORTB1" pointList="-824,20,-824,224,-672,224" />
+<item itemtype="Node" CircId="Node-12" mainComp="false" Pos="-700,224" />
 
-<item itemtype="Connector" uid="Connector-4" startpinid="SR04-4-outpin" endpinid="mega328-1-PORTB2" pointList="-592,24,-592,140,-664,140,-664,224" />
+<item itemtype="Node" CircId="Node-49" mainComp="false" Pos="-648,456" />
 
-<item itemtype="Connector" uid="Connector-5" startpinid="mega328-1-PORTB3" endpinid="SR04-5-outpin" pointList="-656,224,-656,148,-360,148,-360,24" />
+<item itemtype="Node" CircId="Node-57" mainComp="false" Pos="-596,580" />
 
-<item itemtype="Connector" uid="Connector-6" startpinid="mega328-1-PORTB4" endpinid="SR04-6-outpin" pointList="-648,224,-648,156,-128,156,-128,24" />
+<item itemtype="Node" CircId="Node-66" mainComp="false" Pos="-684,224" />
 
-<item itemtype="Connector" uid="Connector-19" startpinid="SR04-6-trigpin" endpinid="Node-10-1" pointList="-136,24,-136,132,-684,132,-684,232" />
+<item itemtype="Node" CircId="Node-70" mainComp="false" Pos="-596,508" />
 
-<item itemtype="Connector" uid="Connector-21" startpinid="Node-10-2" endpinid="mega328-1-PORTB0" pointList="-684,232,-684,272,-672,272" />
+<item itemtype="Node" CircId="Node-71" mainComp="false" Pos="-648,496" />
 
-<item itemtype="Connector" uid="Connector-22" startpinid="SR04-5-trigpin" endpinid="Node-11-1" pointList="-368,24,-368,124,-692,124,-692,232" />
+<item itemtype="Connector" uid="Connector-22" startpinid="SR04-5-trigpin" endpinid="Node-11-1" pointList="-368,24,-368,116,-692,116,-692,224" />
 
-<item itemtype="Connector" uid="Connector-24" startpinid="Node-11-2" endpinid="Node-10-0" pointList="-692,232,-684,232" />
+<item itemtype="Connector" uid="Connector-25" startpinid="SR04-4-trigpin" endpinid="Node-12-1" pointList="-600,24,-600,108,-700,108,-700,224" />
 
-<item itemtype="Connector" uid="Connector-25" startpinid="SR04-4-trigpin" endpinid="Node-12-1" pointList="-600,24,-600,116,-700,116,-700,232" />
-
-<item itemtype="Connector" uid="Connector-26" startpinid="SR04-3-trigpin" endpinid="Node-12-0" pointList="-832,20,-832,232,-700,232" />
-
-<item itemtype="Connector" uid="Connector-27" startpinid="Node-12-2" endpinid="Node-11-0" pointList="-700,232,-692,232" />
+<item itemtype="Connector" uid="Connector-27" startpinid="Node-12-2" endpinid="Node-11-0" pointList="-700,224,-692,224" />
 
 <item itemtype="Connector" uid="Connector-28" startpinid="Voltage Source-13-outPin" endpinid="SR04-3-inpin" pointList="-924,-52,-920,-52" />
 
 <item itemtype="Connector" uid="Connector-29" startpinid="Voltage Source-14-outPin" endpinid="SR04-4-inpin" pointList="-692,-48,-688,-48" />
 
-<item itemtype="Connector" uid="Connector-30" startpinid="Current Source-15-outPin" endpinid="SR04-5-inpin" pointList="-460,-48,-456,-48" />
-
 <item itemtype="Connector" uid="Connector-31" startpinid="Voltage Source-16-outPin" endpinid="SR04-6-inpin" pointList="-228,-48,-224,-48" />
 
-<item itemtype="Connector" uid="Connector-51" startpinid="mega328-1-PORTC0" endpinid="Voltage Source-23-outPin" pointList="-608,224,-608,188,-556,188,-556,444,-632,444,-632,416" />
+<item itemtype="Connector" uid="Connector-108" startpinid="Fixed Voltage-37-outnod" endpinid="Node-49-0" pointList="-652,416,-652,456,-648,456" />
 
-<item itemtype="Connector" uid="Connector-52" startpinid="mega328-1-PORTC1" endpinid="Voltage Source-24-outPin" pointList="-600,224,-600,196,-548,196,-548,416,-568,416" />
+<item itemtype="Connector" uid="Connector-109" startpinid="Node-49-2" endpinid="Resistor-34-lPin" pointList="-648,456,-648,460" />
 
-<item itemtype="Connector" uid="Connector-53" startpinid="mega328-1-PORTC2" endpinid="Voltage Source-27-outPin" pointList="-592,224,-592,220,-540,220,-540,416,-524,416" />
+<item itemtype="Connector" uid="Connector-125" startpinid="Voltage Source-54-outPin" endpinid="SR04-5-inpin" pointList="-460,-48,-456,-48" />
 
-<item itemtype="Connector" uid="Connector-54" startpinid="mega328-1-PORTD2" endpinid="KeyPad-28-Pin0" pointList="-592,272,-592,284,-708,284" />
+<item itemtype="Connector" uid="Connector-130" startpinid="Node-57-1" endpinid="Ground-38-Gnd" pointList="-596,580,-596,592" />
 
-<item itemtype="Connector" uid="Connector-55" startpinid="mega328-1-PORTD3" endpinid="KeyPad-28-Pin1" pointList="-600,272,-600,300,-708,300" />
+<item itemtype="Connector" uid="Connector-131" startpinid="Thermistor-33-rPin" endpinid="Node-57-0" pointList="-648,540,-648,580,-596,580" />
 
-<item itemtype="Connector" uid="Connector-56" startpinid="mega328-1-PORTD5" endpinid="KeyPad-28-Pin3" pointList="-648,272,-648,316,-724,316" />
+<item itemtype="Connector" uid="Connector-155" startpinid="Node-57-2" endpinid="Thermistor-39-rPin" pointList="-596,580,-596,540" />
 
-<item itemtype="Connector" uid="Connector-57" startpinid="mega328-1-PORTD6" endpinid="KeyPad-28-Pin2" pointList="-656,272,-656,328,-740,328,-740,316" />
+<item itemtype="Connector" uid="Connector-160" startpinid="Resistor-40-lPin" endpinid="Node-49-1" pointList="-596,460,-596,456,-648,456" />
 
-<item itemtype="Connector" uid="Connector-59" startpinid="Max72xx_matrix-19PinSck" endpinid="Node-31-1" pointList="-340,272,-340,292,-476,292,-476,276" />
+<item itemtype="Connector" uid="Connector-163" startpinid="Node-66-1" endpinid="Uno-65-8" pointList="-684,224,-476,224,-476,276" />
 
-<item itemtype="Connector" uid="Connector-60" startpinid="mega328-1-PORTC5" endpinid="Node-31-0" pointList="-568,224,-568,212,-516,212,-516,276,-476,276" />
+<item itemtype="Connector" uid="Connector-164" startpinid="Node-11-2" endpinid="Node-66-0" pointList="-692,224,-684,224" />
 
-<item itemtype="Connector" uid="Connector-61" startpinid="Node-31-2" endpinid="Ssd1306-17-PinSck" pointList="-476,276,-476,272" />
+<item itemtype="Connector" uid="Connector-165" startpinid="Node-66-2" endpinid="SR04-6-trigpin" pointList="-684,224,-684,124,-136,124,-136,24" />
 
-<item itemtype="Connector" uid="Connector-62" startpinid="Node-32-1" endpinid="Max72xx_matrix-19PinDin" pointList="-468,284,-332,284,-332,272" />
+<item itemtype="Connector" uid="Connector-166" startpinid="SR04-3-outpin" endpinid="Uno-65-9" pointList="-824,20,-824,208,-468,208,-468,276" />
 
-<item itemtype="Connector" uid="Connector-63" startpinid="mega328-1-PORTC4" endpinid="Node-32-0" pointList="-576,224,-576,204,-508,204,-508,284,-468,284" />
+<item itemtype="Connector" uid="Connector-167" startpinid="SR04-4-outpin" endpinid="Uno-65-10" pointList="-592,24,-592,200,-460,200,-460,276" />
 
-<item itemtype="Connector" uid="Connector-64" startpinid="Node-32-2" endpinid="Ssd1306-17-PinSda" pointList="-468,284,-468,272" />
+<item itemtype="Connector" uid="Connector-168" startpinid="SR04-5-outpin" endpinid="Uno-65-11" pointList="-360,24,-360,200,-452,200,-452,276" />
 
-<item itemtype="Connector" uid="Connector-65" startpinid="mega328-1-PORTC6" endpinid="Max72xx_matrix-19PinCS" pointList="-568,272,-568,300,-324,300,-324,272" />
+<item itemtype="Connector" uid="Connector-169" startpinid="SR04-6-outpin" endpinid="Uno-65-12" pointList="-128,24,-128,164,-444,164,-444,276" />
+
+<item itemtype="Connector" uid="Connector-26" startpinid="SR04-3-trigpin" endpinid="Node-12-0" pointList="-832,20,-832,224,-700,224" />
+
+<item itemtype="Connector" uid="Connector-187" startpinid="Node-70-1" endpinid="Uno-65-A2" pointList="-596,508,-524,508,-524,420" />
+
+<item itemtype="Connector" uid="Connector-188" startpinid="Resistor-40-rPin" endpinid="Node-70-0" pointList="-596,492,-596,508" />
+
+<item itemtype="Connector" uid="Connector-189" startpinid="Node-70-2" endpinid="Thermistor-39-lPin" pointList="-596,508,-596,508" />
+
+<item itemtype="Connector" uid="Connector-190" startpinid="Node-71-1" endpinid="Uno-65-A1" pointList="-648,496,-516,496,-516,420" />
+
+<item itemtype="Connector" uid="Connector-191" startpinid="Resistor-34-rPin" endpinid="Node-71-0" pointList="-648,492,-648,496" />
+
+<item itemtype="Connector" uid="Connector-192" startpinid="Node-71-2" endpinid="Thermistor-33-lPin" pointList="-648,496,-648,508" />
+
+<item itemtype="Connector" uid="Connector-193" startpinid="Voltage Source-72-outPin" endpinid="Uno-65-A0" pointList="-464,568,-464,484,-508,484,-508,420" />
+
+<item itemtype="Connector" uid="Connector-208" startpinid="Ssd1306-74-PinSck" endpinid="Uno-65-A5" pointList="-292,364,-292,444,-548,444,-548,420" />
+
+<item itemtype="Connector" uid="Connector-209" startpinid="Uno-65-A4" endpinid="Ssd1306-74-PinSda" pointList="-540,420,-540,452,-284,452,-284,364" />
+
+<item itemtype="Connector" uid="Connector-172" startpinid="KY040-50-sw" endpinid="Uno-65-5" pointList="-656,320,-640,320,-640,252,-508,252,-508,276" />
+
+<item itemtype="Connector" uid="Connector-171" startpinid="KY040-50-dt" endpinid="Uno-65-6" pointList="-656,312,-648,312,-648,244,-500,244,-500,276" />
+
+<item itemtype="Connector" uid="Connector-170" startpinid="KY040-50-clk" endpinid="Uno-65-7" pointList="-656,304,-656,236,-492,236,-492,276" />
 
 </circuit>

@@ -429,9 +429,11 @@ int main(void)
                 itoa(temperature_sensor_data[3], uart_buffer, 10);
                 oled_puts(uart_buffer);
                 oled_puts(" C   ");
-                //oled_gotoxy(0, 3);                                                        // RE ENABLE IF NEEDED
-                //sprintf(uart_buffer, "Coolant: %d C   ", temperature_sensor_data[1]);
-                //oled_puts(uart_buffer);
+                oled_gotoxy(0, 3);                                                       
+                oled_puts("Coolant: ");
+                itoa(temperature_sensor_data[4], uart_buffer, 10);
+                oled_puts(uart_buffer);
+                oled_puts(" C   ");
                 oled_display();
             }   
         }
