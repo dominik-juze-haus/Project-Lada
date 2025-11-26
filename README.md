@@ -15,6 +15,14 @@ Optional ambitious features are:
 2. Auto-trigger of parking systems when put into reverse
 3. Fuel readout with low level alert
 
+List of parts:
+- Atmega 328P microcontroller on an UNO R3 board
+- HC-SR04 ultrasonic sensor (weather sealed) - 4 pcs
+- SSH1106 128 x 64 OLED i2c display
+- KY-040 rotary encoder with button
+- Siemens QAD21/209 Ni1000 Thermal sensor (passive) - 2 pcs
+- Optical switch Groove H2010 driven by LM393
+
 
 ## Modules
 ### Parking system
