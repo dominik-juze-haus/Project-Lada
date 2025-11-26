@@ -22,6 +22,7 @@ List of parts:
 - KY-040 rotary encoder with button
 - Siemens QAD21/209 Ni1000 Thermal sensor (passive) - 2 pcs
 - Optical switch Groove H2010 driven by LM393
+- Wiring (jumpwires, USB cable, breadboard...)
 
 
 ## Modules
