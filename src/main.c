@@ -56,21 +56,22 @@
 volatile uint16_t parking_sensor_data[4]; // Array to store raw parking sensor data (base: 16us ~ 0.29 cm) from all 4 HC-SR04 sensors
 volatile uint16_t rpm_value = 0; // Variable to store RPM value from ADC
 volatile uint16_t speed_value = 0; // Variable to store raw speed value from optical switch
+volatile uint16_t temperature_sensor_data[4]; // Array to store raw temperature sensor data (base: ADC voltage) [0] - Oil temp voltage, [1] - Coolant temp voltage, [2] - Oil temp Celsius, [3] - Coolant temp Celsius
 volatile uint8_t rtenc[3]; // Rotary encoder states variable, rtenc  [0] - DT pin state, rtenc [1] - CLK pin state, rtenc [2] - previous state
 
 // -- Switches ------------------------------
-volatile uint8_t parking_sensor_switch_ON_OFF = 0; // Flag to switch sensors ON/OFF - operated by rotary encoder button
-volatile uint8_t RPM_measure_switch_ON_OFF = 0; // RPM measurement flag, 1 - ON, 0 - OFF
+volatile uint8_t sensor_switches[4] = {0, 0, 0, 0}; // Array of flags for sensors: [0] - Parking, [1] - RPM, [2] - Temperature, [3] - Speed 
 volatile uint8_t sensor_trigger; // State of the sensor trigger, 0 - not trigger, 1 - trigger
 
 
 // -- Flags --------------------------------
 volatile uint8_t newdata_flag = 0; // Flag for display and UART update
+volatile uint8_t data_process_flag = 0; // Flag to indicate data processing
 volatile uint8_t display_update_flag = 0; // Flag to indicate display update
 volatile uint8_t oled_switch_page = 0; // OLED display page switch flag
 
 // -- Indexes ------------------------------
-volatile uint8_t oled_current_page = 0; // OLED current page index
+volatile uint8_t current_systems = 0; // index for the current used sensor system/page on OLED display
 volatile uint8_t oled_last_page = 0; // OLED last page index
 volatile uint8_t sensor_index = 0; // Index for parking_sensor_data array
 
@@ -118,7 +119,7 @@ int main(void)
     // Switch sensors ON
     //sensor_switch_ON_OFF = 1; // Parking sensor flag,1 - ON, 0 - OFF
     oled_switch_page = 1; // Set flag to switch OLED page
-    oled_current_page = 0; // current OLED page index
+    current_systems = 0; // current OLED page index
     // -----------------------------------------------------------------------
     
 
@@ -153,22 +154,22 @@ int main(void)
             if (rtenc[2] != rtenc[0]) // Counter-clockwise rotation
             { 
                 
-                if (oled_current_page == 0)
+                if (current_systems == 0)
                 {
-                    oled_current_page = 2;
+                    current_systems = 2;
                 }
                 else
                 {
-                    oled_current_page--;
+                    current_systems--;
                 }
                 oled_switch_page = 1; // Set flag to switch OLED page
             }
             if (rtenc[2] != rtenc[1])  // Clockwise rotation
             {
-                oled_current_page++;
-                if (oled_current_page > 2)
+                current_systems++;
+                if (current_systems > 2)
                 {
-                    oled_current_page = 0;
+                    current_systems = 0;
                 }
                 oled_switch_page = 1; // Set flag to switch OLED page
             }
@@ -176,44 +177,46 @@ int main(void)
 
 
       
-
+        // Rotary encoder button handling
         if (GPIO_read(&PIND, RTENC_button_PIN) == 0) // Read Rotary encoder button state - pressed - switches to/from parking sensor page
         {
-            parking_sensor_switch_ON_OFF ^= 1; // Toggle parking sensor ON/OFF state
+            sensor_switches[0] ^= 1; // Toggle parking sensor ON/OFF state
             
-            if (oled_current_page == 3) // If currently on parking sensor page
+            if (current_systems == 3) // If currently on parking sensor page
             {
-                oled_current_page = oled_last_page; // Return to last page
+                current_systems = oled_last_page; // Return to last page
                 oled_switch_page = 1; // Set flag to switch OLED page
             }
             else // If not on parking sensor page
             {
-                oled_last_page = oled_current_page; // Store current page as last page
-                oled_current_page = 3; // Switch to parking sensor page
+                oled_last_page = current_systems; // Store current page as last page
+                current_systems = 3; // Switch to parking sensor page
                 oled_switch_page = 1; // Set flag to switch OLED page
             }
             _delay_ms(30); // Debounce delay
         }
+
+        // --------------------------------------------------------------------------- OLED page switching -----------------------------------
         if (oled_switch_page == 1)
         {
             // Switch OLED display page
             oled_clrscr(); // Clear the display
 
             // ------------------------------------------------------------RPM page
-            if (oled_current_page == 0)
+            if (current_systems == 0)
             { 
-                RPM_measure_switch_ON_OFF = 1; // Enable RPM measurement
+                sensor_switches[1] = 1; // Enable RPM measurement
                 oled_gotoxy(0, 0);
                 oled_puts("RPM");
                 oled_display();
             }
             else
             {
-                RPM_measure_switch_ON_OFF = 0; // Disable RPM measurement
+                sensor_switches[1] = 0; // Disable RPM measurement
             }
             
             // -----------------------------------------------------------Speed page
-            if (oled_current_page == 1)
+            if (current_systems == 1)
             {   // Speed page
                 oled_gotoxy(0, 0);
                 oled_puts("Speed");
@@ -221,14 +224,20 @@ int main(void)
             }
             
             // -----------------------------------------------------------Temperature page
-            if (oled_current_page == 2)
-            {   // Temperature page
+            if (current_systems == 2)
+            {   
+                sensor_switches[2] = 1; // Enable Temperature measurement
                 oled_gotoxy(0, 0);
                 oled_puts("Temperature");
                 oled_display();
             }
+            else
+            {
+                sensor_switches[2] = 0; // Disable Temperature measurement
+            }
+
             // -----------------------------------------------------------Parking sensor page
-            if (oled_current_page == 3)
+            if (current_systems == 3)
             {    
                 oled_drawRect(0, 10, 127, 20, WHITE); // Graphic back of the car
                 oled_gotoxy(3, 0);
@@ -248,7 +257,58 @@ int main(void)
             }
             oled_switch_page = 0; // Reset the flag
         }
-        if (parking_sensor_switch_ON_OFF == 1)
+
+
+
+        // --------------------------------------------------------------------------- Sensor calculations -----------------------------------
+        // --------------------------------------------------------------------------------------------------------Temperature data processing
+        if (current_systems == 2)
+            {   
+                if (data_process_flag == 1)
+                {   
+                    uart_puts("Processing temperature data...\r\n");
+                    char buffer[50];
+                    float temp_oil_V = ((float)temperature_sensor_data[0] * 5.0 / 1023.0); // Read Oil Temperature raw voltage value
+                    float temp_coolant_V = ((float)temperature_sensor_data[1] * 5.0 / 1023.0); // Read Coolant Temperature raw voltage value
+                    
+                    /* // Debugging temperature calculations - uart output
+                    itoa((uint16_t)temperature_sensor_data[0], buffer, 10);
+                    uart_puts("Oil Temp Voltage ADC: ");
+                    uart_puts(buffer);
+                    uart_puts("\r\n");
+                    itoa((uint16_t)temperature_sensor_data[1], buffer, 10);
+                    uart_puts("Coolant Temp Voltage ADC: ");
+                    uart_puts(buffer);
+                    uart_puts("\r\n");*/
+                    
+
+                    // Equation to get resistance: R = (R1*Vout) / (Vin - Vout)
+                    float temp_oil_R = (1000*temp_oil_V) / (5-temp_oil_V); // Convert Oil temperature voltage to Celsius
+                    float temp_coolant_R = (1000*temp_coolant_V) / (5-temp_coolant_V); // Convert Coolant temperature voltage to Celsius
+
+                    // Steinhart-Hart equation to convert resistance to temperature in Kelvin
+                    float temp_oil_C = (1 / (0.001129148 + (0.000234125 * log(temp_oil_R)) + (0.0000000876741 * pow(log(temp_oil_R), 3)))) - 273.15;
+                    float temp_coolant_C = (1 / (0.001129148 + (0.000234125 * log(temp_coolant_R)) + (0.0000000876741 * pow(log(temp_coolant_R), 3)))) - 273.15;
+                    
+                    /* // Debugging temperature calculations - uart output
+                    itoa((uint16_t)temp_oil_C, buffer, 10);
+                    uart_puts("Oil Temp Celsius: ");
+                    uart_puts(buffer);
+                    uart_puts("\r\n");
+
+                    itoa((uint16_t)temp_coolant_C, buffer, 10);
+                    uart_puts("Coolant Temp Celsius: ");
+                    uart_puts(buffer);
+                    uart_puts("\r\n");*/
+
+                    temperature_sensor_data[3] = ceil((uint16_t)temp_oil_C); // Store Oil temperature in Celsius
+                    temperature_sensor_data[4] = ceil((uint16_t)temp_coolant_C); // Store Coolant temperature in Celsius
+                    data_process_flag = 0; // Reset data processing flag
+                    newdata_flag = 1; // Set new data flag for display and UART update
+                }
+            }
+
+        if (sensor_switches[0] == 1) // if parking sensor switch is ON
         {   
             
             // Trigger parking sensors every 100ms
@@ -256,12 +316,12 @@ int main(void)
             {
                 sensor_index++;
                 // Set Trigger pin as output
-                GPIO_mode_output(&PARKING_SENSOR_trigger_DDR, PARKING_SENSOR_trigger_PIN);
-                GPIO_write_low(&PARKING_SENSOR_trigger_PORT, PARKING_SENSOR_trigger_PIN);
-                _delay_ms(40);
-                GPIO_write_high(&PARKING_SENSOR_trigger_PORT, PARKING_SENSOR_trigger_PIN);
-                _delay_us(10);
-                GPIO_write_low(&PARKING_SENSOR_trigger_PORT, PARKING_SENSOR_trigger_PIN);
+                GPIO_mode_output(&PARKING_SENSOR_trigger_DDR, PARKING_SENSOR_trigger_PIN); // Set Trigger pin as output
+                GPIO_write_low(&PARKING_SENSOR_trigger_PORT, PARKING_SENSOR_trigger_PIN); // Set Trigger pin LOW
+                _delay_ms(40); // Wait 40ms between triggers
+                GPIO_write_high(&PARKING_SENSOR_trigger_PORT, PARKING_SENSOR_trigger_PIN); // Set Trigger pin HIGH
+                _delay_us(10); // Trigger pulse width 10us
+                GPIO_write_low(&PARKING_SENSOR_trigger_PORT, PARKING_SENSOR_trigger_PIN); // Set Trigger pin LOW
                 GPIO_mode_input_nopull(&PARKING_SENSOR_trigger_DDR, PARKING_SENSOR_echo_PIN1); // Set Echo pin1 as input
                 GPIO_mode_input_nopull(&PARKING_SENSOR_trigger_DDR, PARKING_SENSOR_echo_PIN2); // Set Echo pin2 as input
                 GPIO_mode_input_nopull(&PARKING_SENSOR_trigger_DDR, PARKING_SENSOR_echo_PIN3); // Set Echo pin3 as input
@@ -272,7 +332,7 @@ int main(void)
         if (display_update_flag == 1)
         {   
             // --------------------------------------------------------------------------- Update OLED display and UART with parking sensor data
-            if (parking_sensor_switch_ON_OFF == 1)
+            if (sensor_switches[0] == 1) // if parking sensor switch is ON
             {
             
               char uart_buffer[50]; // Buffer for UART transmission
@@ -335,20 +395,45 @@ int main(void)
               display_update_flag = 0; // Reset the flag
           }
             // --------------------------------------------------------------------------- Update OLED display and UART with RPM
-          if (RPM_measure_switch_ON_OFF == 1)
-          {
-              //ADC_Init(ADC_VREF_AVCC, ADC_DATA_10BIT, ADC_PSC16); // Re-initialize ADC
-              
-              char uart_buffer[30]; // Buffer for UART transmission
+            if (sensor_switches[1] == 1) // if RPM measurement switch is ON
+            {
+                //ADC_Init(ADC_VREF_AVCC, ADC_DATA_10BIT, ADC_PSC16); // Re-initialize ADC
+                
+                char uart_buffer[30]; // Buffer for UART transmission
 
-              sprintf(uart_buffer, "RPM: %d rpm\r\n", rpm_value);
-              uart_puts(uart_buffer); //
+                sprintf(uart_buffer, "RPM: %d rpm\r\n", rpm_value);
+                uart_puts(uart_buffer); //
 
-              oled_gotoxy(0, 2);
-              sprintf(uart_buffer, "Value: %d rpm   ", rpm_value);
-              oled_puts(uart_buffer);
-              oled_display();
-          }   
+                oled_gotoxy(0, 2);
+                sprintf(uart_buffer, "Value: %d rpm   ", rpm_value);
+                oled_puts(uart_buffer);
+                oled_display();
+            }
+            // --------------------------------------------------------------------------- Update OLED display and UART with Temperature
+            if (sensor_switches[2] == 1) // if Temperature measurement switch is ON
+            {
+                char uart_buffer[50]; // Buffer for UART transmission
+
+                itoa(temperature_sensor_data[3], uart_buffer, 10);
+                uart_puts("Oil Temperature: ");
+                uart_puts(uart_buffer);
+                uart_puts(" ");
+                itoa(temperature_sensor_data[4], uart_buffer, 10);
+                uart_puts("Coolant Temperature: ");
+                uart_puts(uart_buffer);
+                uart_puts("\r\n");
+
+
+                oled_gotoxy(0, 2);
+                oled_puts("Oil: ");
+                itoa(temperature_sensor_data[3], uart_buffer, 10);
+                oled_puts(uart_buffer);
+                oled_puts(" C   ");
+                //oled_gotoxy(0, 3);                                                        // RE ENABLE IF NEEDED
+                //sprintf(uart_buffer, "Coolant: %d C   ", temperature_sensor_data[1]);
+                //oled_puts(uart_buffer);
+                oled_display();
+            }   
         }
       
     }
@@ -463,19 +548,31 @@ ISR(TIMER1_OVF_vect)
 { 
   /*
   uint8_t speed_val = 0;
-  speed_val = ADC_ReadData(ADC_channel_SpeedSensor); // Read speed sensor value from ADC
+  speed_val = ADC_ReadData(ADC_channel_SpeedSensor); // Read speed sensor value from ADC - needs a different sensor
   uart_puts("Speed ADC: ");
   char uart_buffer_speed[20]; // Buffer for UART transmission
   itoa(speed_val, uart_buffer_speed, 10);
   uart_puts(uart_buffer_speed); // Transmit speed value via UART
   uart_puts("\r\n");*/
 
-  if (RPM_measure_switch_ON_OFF == 1)
+  if (sensor_switches[1] == 1) // if RPM measurement switch is ON
   {
       rpm_value = ADC_ReadData(ADC_channel_RPM); // Read RPM value from ADC
       display_update_flag = 1; // Set flag to update display and UART
   }
-  if (newdata_flag == 1)
+  
+  if (sensor_switches[2] == 1 && data_process_flag == 0) // if Temperature measurement switch is ON
+  {
+      uint16_t temp_oil = ADC_ReadData(ADC_channel_TemperatureOil); // Read Oil Temperature value from ADC
+      uint16_t temp_coolant = ADC_ReadData(ADC_channel_TemperatureCoolant); // Read Coolant Temperature value from ADC
+      temperature_sensor_data[0] = temp_oil;
+      temperature_sensor_data[1] = temp_coolant;
+      data_process_flag = 1; // Set flag to process new temperature data
+  }
+  
+  
+  
+  if (newdata_flag == 1) // ifnew data is available
   {
       display_update_flag = 1; // Set flag to update display and UART
       newdata_flag = 0; // Reset new data flag
