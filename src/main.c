@@ -29,6 +29,12 @@
 //#define SPEED_SENSOR_optical_PORT    PORTB // Port Register for Speed sensor optical input
 //#define SPEED_SENSOR_optical_PIN     PB5 // Pin for Speed sensor optical input
 
+// Speed sensor magnetic Hall's effect input pin
+#define SPEED_SENSOR_magnetic_DDR     DDRB // Data Direction Register for Speed sensor magnetic input
+#define SPEED_SENSOR_magnetic_PORT    PORTB // Port Register for Speed sensor magnetic input
+#define SPEED_SENSOR_magnetic_PIN     PB5  // Pin for Speed sensor magnetic input
+
+
 // Rotary encoder pins
 #define RTENC_DDR    DDRD // Data Direction Register for Rotary encoder
 #define RTENC_PORT   PORTD // Port Register for Rotary encoder
@@ -36,11 +42,14 @@
 #define RTENC_DT_PIN    PD6 // Pin DT for Rotary encoder
 #define RTENC_CLK_PIN    PD7 // Pin CLK for Rotary encoder
 
+// UART Pins
+// (Using default UART pins: PD0 - RX, PD1 - TX)
+
 // ADC channels
 #define ADC_channel_RPM        0 // ADC channel for RPM sensor
 #define ADC_channel_TemperatureOil 1 // ADC channel for Oil Temperature sensor
 #define ADC_channel_TemperatureCoolant 2 // ADC channel for Coolant Temperature sensor
-#define ADC_channel_SpeedSensor 3 // ADC channel for Speed sensor
+
 
 
 /*
@@ -55,19 +64,21 @@
 // -- Data variables ------------------------
 volatile uint16_t parking_sensor_data[4]; // Array to store raw parking sensor data (base: 16us ~ 0.29 cm) from all 4 HC-SR04 sensors
 volatile uint16_t rpm_value = 0; // Variable to store RPM value from ADC
-volatile uint16_t speed_value = 0; // Variable to store raw speed value from optical switch
+volatile uint16_t optical_speed_value = 0; // Variable to store raw speed value from optical switch
+volatile uint8_t magnetic_speed_value[5]; // Variable to store raw speed value from magnetic Hall's sensor (pulse count in time frame) [0] - current, [1], [2], [3] - last 3 readings for averaging, 4 - calculated speed in km/h
 volatile uint16_t temperature_sensor_data[4]; // Array to store raw temperature sensor data (base: ADC voltage) [0] - Oil temp voltage, [1] - Coolant temp voltage, [2] - Oil temp Celsius, [3] - Coolant temp Celsius
 volatile uint8_t rtenc[3]; // Rotary encoder states variable, rtenc  [0] - DT pin state, rtenc [1] - CLK pin state, rtenc [2] - previous state
 
 // -- Switches ------------------------------
 volatile uint8_t sensor_switches[4] = {0, 0, 0, 0}; // Array of flags for sensors: [0] - Parking, [1] - RPM, [2] - Temperature, [3] - Speed 
-volatile uint8_t sensor_trigger; // State of the sensor trigger, 0 - not trigger, 1 - trigger
+volatile uint8_t parking_sensor_trigger; // State of the sensor trigger, 0 - not trigger, 1 - trigger
 
 
 // -- Flags --------------------------------
 volatile uint8_t newdata_flag = 0; // Flag for display and UART update
 volatile uint8_t data_process_flag = 0; // Flag to indicate data processing
 volatile uint8_t display_update_flag = 0; // Flag to indicate display update
+volatile uint8_t speed_sensor_pulse_flag = 0; // Flag for speed sensor pulse detection
 volatile uint8_t oled_switch_page = 0; // OLED display page switch flag
 
 // -- Indexes ------------------------------
@@ -104,12 +115,12 @@ int main(void)
     oled_clrscr(); // Clear the display
     oled_charMode(NORMALSIZE);
 
-    // Configure Rotary encoder button pin as input with pull-up
-    GPIO_mode_input_pullup(&RTENC_DDR, RTENC_button_PIN);
-    GPIO_mode_input_pullup(&RTENC_DDR, RTENC_DT_PIN);
-    GPIO_mode_input_pullup(&RTENC_DDR, RTENC_CLK_PIN);
+    
+    GPIO_mode_input_pullup(&RTENC_DDR, RTENC_button_PIN); // Configure Rotary encoder button pin as input with pull-up
+    GPIO_mode_input_pullup(&RTENC_DDR, RTENC_DT_PIN); // Configure Rotary encoder DT pin as input with pull-up
+    GPIO_mode_input_pullup(&RTENC_DDR, RTENC_CLK_PIN); // Configure Rotary encoder CLK pin as input with pull-up
 
-
+    GPIO_mode_input_nopull(&SPEED_SENSOR_magnetic_DDR, SPEED_SENSOR_magnetic_PIN); // Configure Speed sensor magnetic pin as input without pull-up
     
 
     
@@ -149,7 +160,7 @@ int main(void)
             rtenc[2] = rtenc[0]; // Store previous state
         }
         
-        if (rtenc[0] != rtenc[1]) // If DT and CLK pins are different
+        if (rtenc[0] != rtenc[1] && current_systems != 3) // If DT and CLK pins are different and not on parking sensor page
         { 
             if (rtenc[2] != rtenc[0]) // Counter-clockwise rotation
             { 
@@ -196,7 +207,7 @@ int main(void)
             _delay_ms(30); // Debounce delay
         }
 
-        // --------------------------------------------------------------------------- OLED page switching -----------------------------------
+        // --------------------------------------------------------------------------- Systems switching -----------------------------------
         if (oled_switch_page == 1)
         {
             // Switch OLED display page
@@ -215,16 +226,9 @@ int main(void)
                 sensor_switches[1] = 0; // Disable RPM measurement
             }
             
-            // -----------------------------------------------------------Speed page
-            if (current_systems == 1)
-            {   // Speed page
-                oled_gotoxy(0, 0);
-                oled_puts("Speed");
-                oled_display();
-            }
             
             // -----------------------------------------------------------Temperature page
-            if (current_systems == 2)
+            if (current_systems == 1)
             {   
                 sensor_switches[2] = 1; // Enable Temperature measurement
                 oled_gotoxy(0, 0);
@@ -234,6 +238,19 @@ int main(void)
             else
             {
                 sensor_switches[2] = 0; // Disable Temperature measurement
+            }
+
+            // -----------------------------------------------------------Speed page
+            if (current_systems == 2)
+            {   // Speed page
+                sensor_switches[3] = 1; // Enable Speed measurement
+                oled_gotoxy(0, 0);
+                oled_puts("Speed");
+                oled_display();
+            }
+            else
+            {
+                sensor_switches[3] = 0; // Disable Speed measurement
             }
 
             // -----------------------------------------------------------Parking sensor page
@@ -261,58 +278,78 @@ int main(void)
 
 
         // --------------------------------------------------------------------------- Sensor calculations -----------------------------------
-        // --------------------------------------------------------------------------------------------------------Temperature data processing
-        if (current_systems == 2)
-            {   
-                if (data_process_flag == 1)
-                {   
-                    uart_puts("Processing temperature data...\r\n");
-                    char buffer[50];
-                    float temp_oil_V = ((float)temperature_sensor_data[0] * 5.0 / 1023.0); // Read Oil Temperature raw voltage value
-                    float temp_coolant_V = ((float)temperature_sensor_data[1] * 5.0 / 1023.0); // Read Coolant Temperature raw voltage value
-                    
-                    /* // Debugging temperature calculations - uart output
-                    itoa((uint16_t)temperature_sensor_data[0], buffer, 10);
-                    uart_puts("Oil Temp Voltage ADC: ");
-                    uart_puts(buffer);
-                    uart_puts("\r\n");
-                    itoa((uint16_t)temperature_sensor_data[1], buffer, 10);
-                    uart_puts("Coolant Temp Voltage ADC: ");
-                    uart_puts(buffer);
-                    uart_puts("\r\n");*/
-                    
+        
+        if (data_process_flag == 1)
+        {
+          uart_puts("Processing");
+          // --------------------------------------------------------------------------------------------------------Temperature data processing   
+          if (current_systems == 1)
+          {   
+            uart_puts(" temperature data...\r\n");                    
+            float temp_oil_V = ((float)temperature_sensor_data[0] * 5.0 / 1023.0); // Read Oil Temperature raw voltage value
+            float temp_coolant_V = ((float)temperature_sensor_data[1] * 5.0 / 1023.0); // Read Coolant Temperature raw voltage value
+            
+            /* // Debugging temperature calculations - uart output
+            itoa((uint16_t)temperature_sensor_data[0], buffer, 10);
+            uart_puts("Oil Temp Voltage ADC: ");
+            uart_puts(buffer);
+            uart_puts("\r\n");
+            itoa((uint16_t)temperature_sensor_data[1], buffer, 10);
+            uart_puts("Coolant Temp Voltage ADC: ");
+            uart_puts(buffer);
+            uart_puts("\r\n");*/
+            
 
-                    // Equation to get resistance: R = (R1*Vout) / (Vin - Vout)
-                    float temp_oil_R = (1000*temp_oil_V) / (5-temp_oil_V); // Convert Oil temperature voltage to Celsius
-                    float temp_coolant_R = (1000*temp_coolant_V) / (5-temp_coolant_V); // Convert Coolant temperature voltage to Celsius
+            // Equation to get resistance: R = (R1*Vout) / (Vin - Vout)
+            float temp_oil_R = (1000*temp_oil_V) / (5-temp_oil_V); // Convert Oil temperature voltage to Celsius
+            float temp_coolant_R = (1000*temp_coolant_V) / (5-temp_coolant_V); // Convert Coolant temperature voltage to Celsius
 
-                    // Steinhart-Hart equation to convert resistance to temperature in Kelvin
-                    float temp_oil_C = (1 / (0.001129148 + (0.000234125 * log(temp_oil_R)) + (0.0000000876741 * pow(log(temp_oil_R), 3)))) - 273.15;
-                    float temp_coolant_C = (1 / (0.001129148 + (0.000234125 * log(temp_coolant_R)) + (0.0000000876741 * pow(log(temp_coolant_R), 3)))) - 273.15;
-                    
-                    /* // Debugging temperature calculations - uart output
-                    itoa((uint16_t)temp_oil_C, buffer, 10);
-                    uart_puts("Oil Temp Celsius: ");
-                    uart_puts(buffer);
-                    uart_puts("\r\n");
+            // Steinhart-Hart equation to convert resistance to temperature in Kelvin
+            float temp_oil_C = (1 / (0.001129148 + (0.000234125 * log(temp_oil_R)) + (0.0000000876741 * pow(log(temp_oil_R), 3)))) - 273.15;
+            float temp_coolant_C = (1 / (0.001129148 + (0.000234125 * log(temp_coolant_R)) + (0.0000000876741 * pow(log(temp_coolant_R), 3)))) - 273.15;
+            
+            /* // Debugging temperature calculations - uart output
+            itoa((uint16_t)temp_oil_C, buffer, 10);
+            uart_puts("Oil Temp Celsius: ");
+            uart_puts(buffer);
+            uart_puts("\r\n");
 
-                    itoa((uint16_t)temp_coolant_C, buffer, 10);
-                    uart_puts("Coolant Temp Celsius: ");
-                    uart_puts(buffer);
-                    uart_puts("\r\n");*/
+            itoa((uint16_t)temp_coolant_C, buffer, 10);
+            uart_puts("Coolant Temp Celsius: ");
+            uart_puts(buffer);
+            uart_puts("\r\n");*/
 
-                    temperature_sensor_data[3] = ceil((uint16_t)temp_oil_C); // Store Oil temperature in Celsius
-                    temperature_sensor_data[4] = ceil((uint16_t)temp_coolant_C); // Store Coolant temperature in Celsius
-                    data_process_flag = 0; // Reset data processing flag
-                    newdata_flag = 1; // Set new data flag for display and UART update
-                }
-            }
-
+            temperature_sensor_data[3] = ceil((uint16_t)temp_oil_C); // Store Oil temperature in Celsius
+            temperature_sensor_data[4] = ceil((uint16_t)temp_coolant_C); // Store Coolant temperature in Celsius
+            data_process_flag = 0; // Reset data processing flag
+            newdata_flag = 1; // Set new data flag for display and UART update
+          }
+        
+          // --------------------------------------------------------------------------------------------------------Speed data processing
+          if (current_systems == 2)
+          {
+            uart_puts(" speed data...\r\n");
+                // Calculate average speed from last 3 readings
+            //uint16_t speed_average = (magnetic_speed_value[1] + magnetic_speed_value[2] + magnetic_speed_value[3]) / 3;
+            uint16_t speed_average = magnetic_speed_value[1]; // Use only last reading for speed calculation
+            // Convert pulse count to speed in km/h
+            // Assuming 1 pulse per wheel revolution, wheel circumference = 2.0 meters, time frame = 262ms FOR DEMO PURPOSES ONLY
+            // Speed (km/h) = (pulse_count * wheel_circumference (m) / time_frame (s)) * 3.6
+            float speed_kmh = ((float)speed_average * 1) * 3.6; // UPDATE EQUATION BASED ON ACTUAL PARAMETERS 
+            
+            
+            magnetic_speed_value[4] = ceil((uint16_t)speed_kmh); // Store speed value as integer
+            data_process_flag = 0; // Reset data processing flag
+            newdata_flag = 1; // Set new data flag for display and UART update
+          }
+        }
+        
+        // --------------------------------------------------------------------------- Sensor triggering ------------------------------------
         if (sensor_switches[0] == 1) // if parking sensor switch is ON
         {   
             
             // Trigger parking sensors every 100ms
-            if (sensor_trigger == 0)
+            if (parking_sensor_trigger == 0)
             {
                 sensor_index++;
                 // Set Trigger pin as output
@@ -326,10 +363,27 @@ int main(void)
                 GPIO_mode_input_nopull(&PARKING_SENSOR_trigger_DDR, PARKING_SENSOR_echo_PIN2); // Set Echo pin2 as input
                 GPIO_mode_input_nopull(&PARKING_SENSOR_trigger_DDR, PARKING_SENSOR_echo_PIN3); // Set Echo pin3 as input
                 GPIO_mode_input_nopull(&PARKING_SENSOR_trigger_DDR, PARKING_SENSOR_echo_PIN4); // Set Echo pin4 as input
-                sensor_trigger = 1; // Set sensor trigger state
+                parking_sensor_trigger = 1; // Set sensor trigger state
             }
         }
-        if (display_update_flag == 1)
+        
+        if (sensor_switches[3] == 1) // if speed measurement switch is ON
+        {
+          
+          if (GPIO_read(&PINB, SPEED_SENSOR_magnetic_PIN) == 0 && speed_sensor_pulse_flag == 0)
+              { 
+                  speed_sensor_pulse_flag = 1; // Pulse detected
+              }
+          if (GPIO_read(&PINB, SPEED_SENSOR_magnetic_PIN) == 1 && speed_sensor_pulse_flag == 1)
+              {   
+                  speed_sensor_pulse_flag = 0; // Reset pulse flag
+                  magnetic_speed_value[0]++; // Increment pulse count
+                  uart_puts("PULSE            \r\n");
+              }
+        }
+
+        // --------------------------------------------------------------------------- OLED display and UART update -----------------------------------
+        if (display_update_flag == 1) 
         {   
             // --------------------------------------------------------------------------- Update OLED display and UART with parking sensor data
             if (sensor_switches[0] == 1) // if parking sensor switch is ON
@@ -344,8 +398,7 @@ int main(void)
               parking_sensor_data[3]);
               uart_puts(uart_buffer); //
 
-              //oled_clrscr(); // Clear the display
-              //oled_drawRect(0, 10, 127, 20, WHITE); // Graphic back of the car
+              // Update OLED display with parking sensor data
               oled_fillRect(9, 21, 35, 62, BLACK); // Clear Left outer sensor bar
               oled_fillRect(36, 21, 62, 62, BLACK); // Clear Left inner sensor bar
               oled_fillRect(63, 21, 89, 62, BLACK); // Clear Right inner sensor bar
@@ -377,20 +430,7 @@ int main(void)
                   oled_fillRect(90, bar_height, 116, 62, WHITE); // Right outer sensor bar
               }
               
-              // Update OLED display
-              /*oled_gotoxy(12, 2);
-              sprintf(uart_buffer, "%d cm   ", parking_sensor_data[0]*16/58);
-              oled_puts(uart_buffer);
-              oled_gotoxy(12, 3);
-              sprintf(uart_buffer, "%d cm   ", parking_sensor_data[1]*16/58);
-              oled_puts(uart_buffer);
-              oled_gotoxy(12, 4);
-              sprintf(uart_buffer, "%d cm   ", parking_sensor_data[2]*16/58);
-              oled_puts(uart_buffer);
-              oled_gotoxy(12, 5);
-              sprintf(uart_buffer, "%d cm   ", parking_sensor_data[3]*16/58);
-              oled_puts(uart_buffer);*/
-              oled_display();
+              oled_display(); // Update OLED display
 
               display_update_flag = 0; // Reset the flag
           }
@@ -408,7 +448,9 @@ int main(void)
                 sprintf(uart_buffer, "Value: %d rpm   ", rpm_value);
                 oled_puts(uart_buffer);
                 oled_display();
+                display_update_flag = 0; // Reset the flag
             }
+
             // --------------------------------------------------------------------------- Update OLED display and UART with Temperature
             if (sensor_switches[2] == 1) // if Temperature measurement switch is ON
             {
@@ -435,7 +477,25 @@ int main(void)
                 oled_puts(uart_buffer);
                 oled_puts(" C   ");
                 oled_display();
-            }   
+                display_update_flag = 0; // Reset the flag
+            }
+            
+            // --------------------------------------------------------------------------- Update OLED display and UART with Speed
+            if (sensor_switches[3] == 1) // if Speed measurement switch is ON
+            {
+              char uart_buffer[50]; // Buffer for UART transmission
+              itoa(magnetic_speed_value[4], uart_buffer, 10);
+              uart_puts("Speed: ");
+              uart_puts(uart_buffer);
+              uart_puts(" km/h\r\n");
+
+              oled_gotoxy(0, 2);
+              oled_puts("Speed: ");
+              oled_puts(uart_buffer);
+              oled_puts(" km/h   ");
+              oled_display();
+              display_update_flag = 0; // Reset the flag
+            }    
         }
       
     }
@@ -445,124 +505,124 @@ int main(void)
 }
 
 // -------------------------------------------------------------- I N T E R R U P T   S E R V I C E   R O U T I N E S --------------------------------------------
-// -------------------------------------- Timer/Counter0 overflow interrupt service routine
+// -------------------------------------- Timer/Counter0 overflow interrupt service routine (16us)
 // Parking sensor echo signal handler
 ISR(TIMER0_OVF_vect)
 {
-  static uint16_t sensor_data_temp = 0;
-  
-    // Left outer sensor
-    if (sensor_trigger == 1 && sensor_index == 1) // Left outer sensor
+  static uint16_t parking_sensor_temp = 0;
+    
+  // -------------------------------- Parking sensor echo signal handling --------------------------------
+  // Left outer sensor
+  if (parking_sensor_trigger == 1 && sensor_index == 1) // Left outer sensor
+  {
+    if (GPIO_read(&PINB, PARKING_SENSOR_echo_PIN1) == 1)
     {
-      if (GPIO_read(&PINB, PARKING_SENSOR_echo_PIN1) == 1)
+      parking_sensor_temp++; // Increment
+    }
+    else if (GPIO_read(&PINB, PARKING_SENSOR_echo_PIN1) == 0)
+    {
+      if (parking_sensor_temp > 0) // Avoid the waiting time for echo
       {
-        sensor_data_temp++; // Increment
-      }
-      else if (GPIO_read(&PINB, PARKING_SENSOR_echo_PIN1) == 0)
-      {
-        if (sensor_data_temp > 0) // Avoid the waiting time for echo
+        parking_sensor_trigger = 0; // Reset sensor trigger state
+        parking_sensor_data[0] = parking_sensor_temp; // Store final distance for Right sensor
+        parking_sensor_temp = 0; // Reset temporary storage
+        newdata_flag = 1; // Set flag to update display and UART
+        if (sensor_index >= 4)
         {
-          sensor_trigger = 0; // Reset sensor trigger state
-          parking_sensor_data[0] = sensor_data_temp; // Store final distance for Right sensor
-          sensor_data_temp = 0; // Reset temporary storage
-          newdata_flag = 1; // Set flag to update display and UART
-          if (sensor_index >= 4)
-          {
-            sensor_index = 0;
-          }
+          sensor_index = 0;
         }
       }
     }
+  }
 
-    // Left inner sensor
-    else if (sensor_trigger == 1 && sensor_index == 2) // Left inner sensor
+  // Left inner sensor
+  else if (parking_sensor_trigger == 1 && sensor_index == 2) // Left inner sensor
+  {
+    if (GPIO_read(&PINB, PARKING_SENSOR_echo_PIN2) == 1)
     {
-      if (GPIO_read(&PINB, PARKING_SENSOR_echo_PIN2) == 1)
+      parking_sensor_temp++; // Increment
+    }
+    else if (GPIO_read(&PINB, PARKING_SENSOR_echo_PIN2) == 0)
+    {
+      if (parking_sensor_temp > 0) // Avoid the waiting time for echo
+      
       {
-        sensor_data_temp++; // Increment
-      }
-      else if (GPIO_read(&PINB, PARKING_SENSOR_echo_PIN2) == 0)
-      {
-        if (sensor_data_temp > 0) // Avoid the waiting time for echo
-        
+        parking_sensor_trigger = 0; // Reset sensor trigger state
+        parking_sensor_data[1] = parking_sensor_temp; // Store final distance for Left inner sensor
+        parking_sensor_temp = 0; // Reset temporary storage
+        newdata_flag = 1; // Set flag to update display and UART
+        if (sensor_index >= 4) 
         {
-          sensor_trigger = 0; // Reset sensor trigger state
-          parking_sensor_data[1] = sensor_data_temp; // Store final distance for Left inner sensor
-          sensor_data_temp = 0; // Reset temporary storage
-          newdata_flag = 1; // Set flag to update display and UART
-          if (sensor_index >= 4) 
-          {
-                sensor_index = 0; // Reset sensor index
-          }
+              sensor_index = 0; // Reset sensor index
         }
       }
     }
-    // Right inner sensor
-    else if (sensor_trigger == 1 && sensor_index == 3) // Right inner sensor
+  }
+  // Right inner sensor
+  else if (parking_sensor_trigger == 1 && sensor_index == 3) // Right inner sensor
+  {
+  if (GPIO_read(&PINB, PARKING_SENSOR_echo_PIN3) == 1)
     {
-    if (GPIO_read(&PINB, PARKING_SENSOR_echo_PIN3) == 1)
+      parking_sensor_temp++; // Increment
+    }
+    else if (GPIO_read(&PINB, PARKING_SENSOR_echo_PIN3) == 0)
+    {
+      if (parking_sensor_temp > 0) // Avoid the waiting time for echo
       {
-        sensor_data_temp++; // Increment
-      }
-      else if (GPIO_read(&PINB, PARKING_SENSOR_echo_PIN3) == 0)
-      {
-        if (sensor_data_temp > 0) // Avoid the waiting time for echo
+        parking_sensor_trigger = 0; // Reset sensor trigger state
+        parking_sensor_data[2] = parking_sensor_temp; // Store final distance for Right inner sensor
+        parking_sensor_temp = 0; // Reset temporary storage
+        newdata_flag = 1; // Set flag to update display and UART
+        if (sensor_index >= 4)
         {
-          sensor_trigger = 0; // Reset sensor trigger state
-          parking_sensor_data[2] = sensor_data_temp; // Store final distance for Right inner sensor
-          sensor_data_temp = 0; // Reset temporary storage
-          newdata_flag = 1; // Set flag to update display and UART
-          if (sensor_index >= 4)
-          {
-                sensor_index = 0; // Reset sensor index
-          }
+              sensor_index = 0; // Reset sensor index
         }
       }
     }
-    // Right outer sensor
-    else if (sensor_trigger == 1 && sensor_index == 4) // Right outer sensor
+  }
+  // Right outer sensor
+  else if (parking_sensor_trigger == 1 && sensor_index == 4) // Right outer sensor
+  {
+  if (GPIO_read(&PINB, PARKING_SENSOR_echo_PIN4) == 1)
     {
-    if (GPIO_read(&PINB, PARKING_SENSOR_echo_PIN4) == 1)
+      parking_sensor_temp++; // Increment
+    }
+    else if (GPIO_read(&PINB, PARKING_SENSOR_echo_PIN4) == 0)
+    {
+      if (parking_sensor_temp > 0) // Avoid the waiting time for echo
       {
-        sensor_data_temp++; // Increment
-      }
-      else if (GPIO_read(&PINB, PARKING_SENSOR_echo_PIN4) == 0)
-      {
-        if (sensor_data_temp > 0) // Avoid the waiting time for echo
+        parking_sensor_trigger = 0; // Reset sensor trigger state
+        parking_sensor_data[3] = parking_sensor_temp; // Store final distance for Right outer sensor
+        parking_sensor_temp = 0; // Reset temporary storage
+        newdata_flag = 1; // Set flag to update display and UART
+        if (sensor_index >= 4)
         {
-          sensor_trigger = 0; // Reset sensor trigger state
-          parking_sensor_data[3] = sensor_data_temp; // Store final distance for Right outer sensor
-          sensor_data_temp = 0; // Reset temporary storage
-          newdata_flag = 1; // Set flag to update display and UART
-          if (sensor_index >= 4)
-          {
-                sensor_index = 0; // Reset sensor index
-          }
+              sensor_index = 0; // Reset sensor index
         }
       }
     }
+  }
 
 }
 
-// -------------------------------------- Timer/Counter1 overflow interrupt service routine
+// -------------------------------------- Timer/Counter1 overflow interrupt service routine (262ms)
 // Display and UART update handler, ADC read handler
 ISR(TIMER1_OVF_vect)
-{ 
-  /*
-  uint8_t speed_val = 0;
-  speed_val = ADC_ReadData(ADC_channel_SpeedSensor); // Read speed sensor value from ADC - needs a different sensor
-  uart_puts("Speed ADC: ");
-  char uart_buffer_speed[20]; // Buffer for UART transmission
-  itoa(speed_val, uart_buffer_speed, 10);
-  uart_puts(uart_buffer_speed); // Transmit speed value via UART
-  uart_puts("\r\n");*/
+{
+  if (newdata_flag == 1) // if new data is available
+    {
+        display_update_flag = 1; // Set flag to update display and UART
+        newdata_flag = 0; // Reset new data flag
+    }
 
+  // -------------------------------------- RPM sensor ADC reading -------------------------------------------
   if (sensor_switches[1] == 1) // if RPM measurement switch is ON
   {
       rpm_value = ADC_ReadData(ADC_channel_RPM); // Read RPM value from ADC
       display_update_flag = 1; // Set flag to update display and UART
   }
   
+  // -------------------------------------- Temperature sensor ADC reading -----------------------------------
   if (sensor_switches[2] == 1 && data_process_flag == 0) // if Temperature measurement switch is ON
   {
       uint16_t temp_oil = ADC_ReadData(ADC_channel_TemperatureOil); // Read Oil Temperature value from ADC
@@ -572,13 +632,23 @@ ISR(TIMER1_OVF_vect)
       data_process_flag = 1; // Set flag to process new temperature data
   }
   
-  
-  
-  if (newdata_flag == 1) // ifnew data is available
+  // ---------------------------------- Speed sensor magnetic signal handling --------------------------------
+  if (sensor_switches[3] == 1) // if Speed sensor switch is ON
   {
-      display_update_flag = 1; // Set flag to update display and UART
-      newdata_flag = 0; // Reset new data flag
+      static uint8_t i;
+      i++;
+      if (i >= 8) // Process speed data every ~2.1s (8 * 262ms)
+      {
+        i = 0;
+        magnetic_speed_value[1] = magnetic_speed_value[0];
+        magnetic_speed_value[0] = 0;  // Reset current pulse count for next time frame 
+        data_process_flag = 1; // Set flag to process new speed data
+      }
+      
   }
+  
+  
+  
 }
 
 
