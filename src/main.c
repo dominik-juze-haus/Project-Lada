@@ -123,15 +123,8 @@ int main(void)
     GPIO_mode_input_nopull(&SPEED_SENSOR_magnetic_DDR, SPEED_SENSOR_magnetic_PIN); // Configure Speed sensor magnetic pin as input without pull-up
     
 
-    
-
-    
-    // -----------------------------DEMO SETTINGS-----------------------------
-    // Switch sensors ON
-    //sensor_switch_ON_OFF = 1; // Parking sensor flag,1 - ON, 0 - OFF
     oled_switch_page = 1; // Set flag to switch OLED page
     current_systems = 0; // current OLED page index
-    // -----------------------------------------------------------------------
     
 
     // Initialize parking sensor data
@@ -497,9 +490,7 @@ int main(void)
               display_update_flag = 0; // Reset the flag
             }    
         }
-      
     }
-
     // Will never reach this
     return 0; 
 }
@@ -635,79 +626,15 @@ ISR(TIMER1_OVF_vect)
   // ---------------------------------- Speed sensor magnetic signal handling --------------------------------
   if (sensor_switches[3] == 1) // if Speed sensor switch is ON
   {
-      static uint8_t i;
-      i++;
-      if (i >= 8) // Process speed data every ~2.1s (8 * 262ms)
-      {
-        i = 0;
-        magnetic_speed_value[1] = magnetic_speed_value[0];
-        magnetic_speed_value[0] = 0;  // Reset current pulse count for next time frame 
-        data_process_flag = 1; // Set flag to process new speed data
-      }
-      
-  }
-  
-  
-  
-}
-
-
-
-// ____________________________________________________________E N D   O F   F I L E____________________________________________________________________________
-
-
-//_____________________________________________________________________MESS_____________________________________________________________________________________
-/*
-ISR(TIMER0_OVF_vect)
-{
-    static uint8_t sensors_processed[4] = {0, 1, 0, 1}; // To track processed sensors in one trigger cycle
-    static uint8_t wait_for_data[4] = {1, 1, 1, 1}; // To implement timeout for each sensor
-    if (sensor_switch_ON_OFF == 1)
+    static uint8_t i;
+    i++;
+    if (i >= 8) // Process speed data every ~2.1s (8 * 262ms)
     {
-      if (sensor_trigger_state == 1)
-      {   // Read Echo pins
-          if (GPIO_read(&PINB, PARKING_SENSOR_echo_PIN1) == 1)
-          {
-              parking_sensor_data[0]++; // Increment distance for Right sensor
-              wait_for_data[0] = 0; // Reset wait time for Right sensor
-          }
-          else if (GPIO_read(&PINB, PARKING_SENSOR_echo_PIN1) == 0)
-          {
-            if (wait_for_data[0] == 0) // Timeout after ~6.4ms
-              {
-              newdata_flag = 1; // Set flag to update display and UART
-              sensors_processed[0] = 1; // Mark Right sensor as processed
-              wait_for_data[0] = 1; // Reset wait time for Right sensor
-              }
-          }
-          
-          if (GPIO_read(&PINB, PARKING_SENSOR_echo_PIN2) == 1)
-          {
-              parking_sensor_data[2]++; // Increment distance for Left sensor
-              newdata_flag = 1; // Set flag to update display and UART
-              sensors_processed[2] = 1; // Mark Left sensor as processed
-          }
-          else if (GPIO_read(&PINB, PARKING_SENSOR_echo_PIN2) == 0)
-          {
-              if (wait_for_data[2] == 0) // Timeout after ~6.4ms
-              {
-              newdata_flag = 1; // Set flag to update display and UART
-              sensors_processed[2] = 1; // Mark Left sensor as processed
-              wait_for_data[2] = 1; // Reset wait time for Left sensor
-              }
-          }
-      
-          
-          if ((sensors_processed[0] == 1) && (sensors_processed[2] == 1))
-          {
-              // Reset for next trigger cycle
-              sensor_trigger_state = 0; // Reset trigger state
-              sensors_processed[0] = 0;
-              sensors_processed[2] = 0;
-          }
-      }
-        
+      i = 0;
+      magnetic_speed_value[1] = magnetic_speed_value[0];
+      magnetic_speed_value[0] = 0;  // Reset current pulse count for next time frame 
+      data_process_flag = 1; // Set flag to process new speed data
     }
-    
+  } 
 }
-*/
+// ____________________________________________________________E N D   O F   F I L E____________________________________________________________________________
