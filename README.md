@@ -30,9 +30,28 @@ List of parts:
 Parking system is a welcomed feature in any car. 
 This goes particulary handy for vintage cars, because the outside visibility is also often very limited. For example, Lada 1300 has only a left mirror.
 
-At the core concept, when the system is triggered, it starts a camera and graphicaly displays distances from obstacles in a clever and understandable manner.
-Distances from the car are measured by 4 ultrasonic sensors evenly spaced out in a line to ensure optimal coverage. 
-Camera hardware would be operated by a standalone infotainment, which will display the camera output on a screen when instructed by the arduino via I2C. 
+Software description
+Subsystem is summoned when
+- shifter goes to reverse (gear shifter button)
+- parking system button is pressed (rotary encoder button)
+
+At first, parking subsystem initializes
+- sets all it's flag variables accordingly (sensor triggering, page indexes etc)
+- sends camera initializing instruction over uart
+
+Parking subsystem then runs
+- periodically using 16 us timer 0 measures distance (4 ultrasonic sensors evenly spaced out) one by one
+- distances are periodically drawn on display in a diagram form
+- camera feed is displayed on a separate infotainment (instructed via UART)
+
+Subystem turns off when
+- speed exceedes 15 km/h not in reverse
+- parking system button is pressed again
+
+When subsystem turns off
+- sensor reading are disabled
+- instruction to disable the camera i sent via uart
+- entire system returns to the last used page (before the parking subsystem was summoned)
 
 Hardware solution
 Sensors
@@ -42,27 +61,50 @@ For practical use, a weather sealed IP rated version of the HC ultrasonic sensor
 Camera
 Since image decoding and processing uses a lot more processing power than that of an Atmega328p microcontroller, a Raspberry Pi board would be used to decode the image and simultaneously to run the standalone infotainment.
 At least an HD resolution camera with decent low light capabilities would be used.
-We find solutions like arducam unsatisfactory due to their low performance. 
-For demonstration purposes, the turning on camera signal is being sent via I2C to another Arduino in place of the Raspberry.
+For demonstration purposes, the initializing camera signal is being sent via UART to another Arduino.
 
 ### Water and Oil temperature
 This particular car model doesn't have a reliable oil temperature readings and water temperature doesn't seem to be precise. 
 Old carburetor cars are prone to overheating, especialy those from the eastern block. 
 Temperature monitoring is then crucial for the car health and the owners wallets.
 
-The readings will be obtained by utilizing passive thermal sensors placed onto the water and oil reservoir.
+Software description
+Subsystem is summoned when
+- it's corresponding index is dialed with the rotary encoder
+
+At first, the temperature subsystem
+- sets all it's flag variables accordingly (indexes, pages flag etc...)
+
+Temperature subsystem runs
+- it periodically reads voltage on 2 channels using ADC and 252 ms timer 1
+- calculates temperature from the ADC reading
+	- it first converts raw ADC result to voltage
+	- from the known components of the voltage divider, it calculates resistance
+	- using equations corresponding to the specific sensor (Pt1000, Ni1000, 10k Thermistor etc.), it calculates temperature
+- shows the temperature readings on the display
+
+Sybsystem turns off when
+- it's index is no longer selected
+
+When subsystem turns off
+- sensor readings are disabled
 
 Hardware solution
 For both practical and demonstration purposes, the system uses Pt1000 sensors read by the Arduino's AD converter.
 
-### RPM and Speed readings
+### RPM readings
+Lada 1300 misses a tachometer and uses only a speed gauge. Retrofiting it with a digital system will ensure optimal shifting timing and prevent overreving the engine.
 
-Lada 1300 misses a tachometer and uses only a speed gauge. Retrofiting it with a digital system will ensure optimal shifting timing and give the driver more options to monitor the speed, set custom alerts or display statistics.
+
 
 The module
 
 Hardware solution
-RPM measuring - reading the voltage difference between the alternator and ditributor/halls sensor
-Speed measuring - halls sensor/optical switch
+reading the voltage difference between the alternator and ditributor or halls/optical switch
+
+### Speed measurment
+
+Hardware solution
+Halls switch triggered by a magnet in the integrated speedometer
 
 <img width="1483" height="1102" alt="SimulIdeSchematic" src="https://github.com/user-attachments/assets/c0927a90-1865-4c8d-9ecf-306a224259e3" />
