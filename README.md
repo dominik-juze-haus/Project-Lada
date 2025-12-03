@@ -31,7 +31,7 @@ When initialized, the arduino displays the default page, which shows the RPM of 
 
 **RPM** page displays the engine evolutions. When the revs rach a redline threshold, red LEDs light up. When it exceeds the redline, the LEDs blink. Information about the RPMs is obtained through ADC by measuring the difference between the alternator voltage output and that of a distributor. 
 
-**Temperature** page displays the oil and coolant temperatures obtained and calculated through ADC from passive thermal sensors. When the temperature exceedes a healthy value, a corresponding LED lights up
+**Temperature** page displays the oil and coolant temperatures obtained and calculated through ADC from passive thermal sensors. When the temperature exceedes a healthy value, a corresponding LED lights up.
 
 **Speed measurement** uses the digital output of Hall‘s probe. By passing a magnet near the probe, it measures the changes in the near magnetic field, and when its at its maximum value, it triggers a threshold and sends out a simple signal, which frequency is then valued as a speed measurement and displayed on the screen.
 
