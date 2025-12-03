@@ -76,7 +76,7 @@ At first, the temperature subsystem
 - sets all it's flag variables accordingly (indexes, pages flag etc...)
 
 Temperature subsystem runs
-- it periodically reads voltage on 2 channels using ADC and 252 ms timer 1
+- it periodically reads voltage on 2 channels using ADC and 262 ms timer 1
 - calculates temperature from the ADC reading
 	- it first converts raw ADC result to voltage
 	- from the known components of the voltage divider, it calculates resistance
@@ -84,7 +84,7 @@ Temperature subsystem runs
 - shows the temperature readings on the display
 
 Sybsystem turns off when
-- it's index is no longer selected
+- it's index is no longer selected (different page is selected)
 
 When subsystem turns off
 - sensor readings are disabled
@@ -95,14 +95,47 @@ For both practical and demonstration purposes, the system uses Pt1000 sensors re
 ### RPM readings
 Lada 1300 misses a tachometer and uses only a speed gauge. Retrofiting it with a digital system will ensure optimal shifting timing and prevent overreving the engine.
 
+Software description
+Subsystem is summoned when
+- it's corresponding index is dialed with the rotary encoder
 
+At first, the RPM subsystem
+- sets all it's flag variables accordingly (pages, indexes...)
 
-The module
+RPM subsystem runs
+- it periodically reads voltage from 1 ADC channel using 262 ms timer 1
+- it converts the voltage value to RPM using an equation
+	- voltage change corresponds to RPM change
+- if the RPMs exceed a redline value, an LED lights up and if the engine is overreved, the LED blinks
+- it displays the RPM value
+
+Subsystem turns off when
+- it's index is no longer selected (different page is selected)
+
+When subsystem turns off
+- ADC readings are disabled
 
 Hardware solution
 reading the voltage difference between the alternator and ditributor or halls/optical switch
 
 ### Speed measurment
+
+Software description
+Subsystem is summoned when
+- it's corresponding index is dialed with the rotary encoder
+
+At first, the speed subsystem
+- sets all it's flag variables accordingly (pages, indexes...)
+
+Speed subsystem runs
+- it counts the switching of the hall's sensor every 2s (using 262 ms timer1 and a simple counter) and, based on that, calculates the speed value
+- it displays the speed value
+
+Subsystem turns off when
+- it's index is no longer selected (different page is selected)
+
+When subsystem turns off
+- the sensor readings are disabled
 
 Hardware solution
 Halls switch triggered by a magnet in the integrated speedometer
