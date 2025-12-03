@@ -25,13 +25,13 @@ List of parts:
 - Wiring (jumpwires, USB cable, breadboard...)
 
 ## Software description
-When first initialized, the arduino sends out a signal to display the default page, which displays the RPM of the vehicle. Pages can be switched via a rotary encoder, in a clockwise rotation forward in a specific order: RPM, temperature measurements, speed measurements and lastly, when the rotary encoder is pressed, the parking sensors page can be accessed. These parking sensors constist of 4 identical sensors, placed on each corner headlight of the car, allowing for a large area of functionality from all angles.
+When first initialized, the arduino sends out a signal to display the default page, which displays the RPM of the vehicle. Pages can be switched via a rotary encoder, in a clockwise rotation forward in a specific order: **RPM**, **temperature measurements**, **speed measurements** and lastly, when the rotary encoder is pressed, the **parking sensors** page can be accessed. These parking sensors constist of 4 identical sensors, placed on each corner headlight of the car, allowing for a large area of functionality from all angles.
 
-Parking sensors work by using ultrasound to measure the time it takes for the transmitted signal to get received back. Then the raw value from the sensor is converted into a distance value by using the known speed of sound waves, and calculating the distance. We then send this converted distance value to an OLED display.
+**Parking sensors** work by using ultrasound to measure the time it takes for the transmitted signal to get received back. Then the raw value from the sensor is converted into a distance value by using the known speed of sound waves, and calculating the distance. We then send this converted distance value to an OLED display.
 
-RPM voltage difference between alternator and distributor 
+**RPM** voltage difference between alternator and distributor 
 
-Speed measurement software uses the outputs of a Hall‘s sensor to measure the changes in a magnetic field around the sensor. By passing a magnet near the sensor, it measures the changes in the near magnetic field, and when its at its maximum value, it triggers a threshold and sends out a simple signal, which frequency is then valued as a speed measurement.
+**Speed measurement** software uses the outputs of a Hall‘s sensor to measure the changes in a magnetic field around the sensor. By passing a magnet near the sensor, it measures the changes in the near magnetic field, and when its at its maximum value, it triggers a threshold and sends out a simple signal, which frequency is then valued as a speed measurement.
 
 
 ## Modules
