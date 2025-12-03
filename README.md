@@ -3,10 +3,10 @@
 
 This is project was created for purposes of Digital Electronics 2 course at Brno University of Technology
 
-The goal is to create a retrofit system for Lada 1300 that will give it more modern driving and assistive capabilities.
+The goal is to create a retrofit system for Lada 1300 that will give it more modern awareness and assistive capabilities.
 
 The main features contain:
-1. Rear (and optionaly front) parking sensor system
+1. Rear (and optionally front) parking sensor system
 2. Water and oil temperature readings
 3. RPM and Speed readings
 
@@ -25,13 +25,15 @@ List of parts:
 - Wiring (jumpwires, USB cable, breadboard...)
 
 ## Software description
-When first initialized, the arduino sends out a signal to display the default page, which displays the RPM of the vehicle. Pages can be switched via a rotary encoder, in a clockwise rotation forward in a specific order: **RPM**, **temperature measurements**, **speed measurements** and lastly, when the rotary encoder is pressed, the **parking sensors** page can be accessed. These parking sensors constist of 4 identical sensors, placed on each corner headlight of the car, allowing for a large area of functionality from all angles.
+When initialized, the arduino displays the default page, which shows the RPM of the vehicle. Pages can be switched via a rotary encoder, each turn (clockwise and counterclockwise) switches between pages: **RPM**, **temperature measurements**, **speed measurements**. When the rotary encoder is pressed, the **parking sensors** page are accessed.
 
-**Parking sensors** work by using ultrasound to measure the time it takes for the transmitted signal to get received back. Then the raw value from the sensor is converted into a distance value by using the known speed of sound waves, and calculating the distance. We then send this converted distance value to an OLED display.
+**Parking sensors** page dispays distance of obstacles from the 4 sensors and triggers a camera feed on a standalone infotainment. Sensors measure time that it takes for the ultrasonic sound wave to bounce back and return from an obstacle. From that, we calculate the distance. We then send this converted distance value to an OLED display. The camera feed is triggered and disabled over UART. 
 
-**RPM** voltage difference between alternator and distributor 
+**RPM** page displays the engine evolutions. When the revs rach a redline threshold, red LEDs light up. When it exceeds the redline, the LEDs blink. Information about the RPMs is obtained through ADC by measuring the difference between the alternator voltage output and that of a distributor. 
 
-**Speed measurement** software uses the outputs of a Hall‘s sensor to measure the changes in a magnetic field around the sensor. By passing a magnet near the sensor, it measures the changes in the near magnetic field, and when its at its maximum value, it triggers a threshold and sends out a simple signal, which frequency is then valued as a speed measurement.
+**Temperature** page displays the oil and coolant temperatures obtained and calculated through ADC from passive thermal sensors. When the temperature exceedes a healthy value, a corresponding LED lights up
+
+**Speed measurement** uses the digital output of Hall‘s probe. By passing a magnet near the probe, it measures the changes in the near magnetic field, and when its at its maximum value, it triggers a threshold and sends out a simple signal, which frequency is then valued as a speed measurement and displayed on the screen.
 
 
 ## Modules
