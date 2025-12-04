@@ -292,7 +292,39 @@ void oled_putc(char c){
                     displayBuffer[cursorPosition.y][cursorPosition.x+(2*i)+1] = doubleChar[i] & 0xff;
                 }
                 cursorPosition.x += sizeof(FONT[0])*2;
-            } else {
+            } 
+            else if (charMode == DOUBLEBOLD) {
+                uint32_t tripleChar[sizeof(FONT[0])];
+                uint8_t tChar;
+                if ((cursorPosition.x+3*sizeof(FONT[0]))>DISPLAY_WIDTH) break;
+                
+                for (uint8_t i=0; i < sizeof(FONT[0]); i++) {
+                    tripleChar[i] = 0;
+                    tChar = pgm_read_byte(&(FONT[(uint8_t)c][i]));
+                    for (uint8_t j=0; j<8; j++) {
+                        if ((tChar & (1 << j))) {
+                            tripleChar[i] |= (1 << (j*2));
+                            tripleChar[i] |= (1 << ((j*2)+1));
+                            tripleChar[i] |= (1 << ((j*2)+2));
+                        }
+                    }
+                }
+                for (uint8_t i = 0; i < sizeof(FONT[0]); i++)
+                {
+                    // load bit-pattern from flash
+                    displayBuffer[cursorPosition.y+2][cursorPosition.x+(3*i)] = tripleChar[i] >> 16;
+                    displayBuffer[cursorPosition.y+2][cursorPosition.x+(3*i)+1] = tripleChar[i] >> 16;
+                    displayBuffer[cursorPosition.y+2][cursorPosition.x+(3*i)+2] = tripleChar[i] >> 16;
+                    displayBuffer[cursorPosition.y+1][cursorPosition.x+(3*i)] = (tripleChar[i] >> 8) & 0xff;
+                    displayBuffer[cursorPosition.y+1][cursorPosition.x+(3*i)+1] = (tripleChar[i] >> 8) & 0xff;
+                    displayBuffer[cursorPosition.y+1][cursorPosition.x+(3*i)+2] = (tripleChar[i] >> 8) & 0xff;
+                    displayBuffer[cursorPosition.y][cursorPosition.x+(3*i)] = tripleChar[i] & 0xff;
+                    displayBuffer[cursorPosition.y][cursorPosition.x+(3*i)+1] = tripleChar[i] & 0xff;
+                    displayBuffer[cursorPosition.y][cursorPosition.x+(3*i)+2] = tripleChar[i] & 0xff;
+                }
+                cursorPosition.x += sizeof(FONT[0])*3;
+            }
+            else {
             	if ((cursorPosition.x+sizeof(FONT[0]))>DISPLAY_WIDTH) break;
             	
                 for (uint8_t i = 0; i < sizeof(FONT[0]); i++)
@@ -358,7 +390,90 @@ void oled_putc(char c){
 #endif
                 oled_command(commandSequence, sizeof(commandSequence));
                 cursorPosition.x += sizeof(FONT[0])*2;
-            } else {
+            } 
+            else if (charMode == TRIPLESIZE) {
+                uint32_t tripleChar[sizeof(FONT[0])];
+                uint8_t tChar;
+                if ((cursorPosition.x+3*sizeof(FONT[0]))>DISPLAY_WIDTH) break;
+                
+                for (uint8_t i=0; i < sizeof(FONT[0]); i++) {
+                    tripleChar[i] = 0;
+                    tChar = pgm_read_byte(&(FONT[(uint8_t)c][i]));
+                    for (uint8_t j=0; j<8; j++) {
+                        if ((tChar & (1 << j))) {
+                            tripleChar[i] |= (1 << (j*3));
+                            tripleChar[i] |= (1 << ((j*3)+1));
+                            tripleChar[i] |= (1 << ((j*3)+2));
+                        }
+                    }
+                }
+                uint8_t data[sizeof(FONT[0])*3];
+                for (uint8_t i = 0; i < sizeof(FONT[0]); i++)
+                {
+                    // print font to ram, print 6 columns
+                    data[i*3]=(tripleChar[i] & 0xff);
+                    data[(i*3)+1]=(tripleChar[i] & 0xff);
+                    data[(i*3)+2]=(tripleChar[i] & 0xff);
+                }
+                oled_data(data, sizeof(FONT[0])*3);
+#if defined (SSD1306) || defined (SSD1309)
+                uint8_t commandSequence[] = {0xb0+cursorPosition.y+1,
+                    0x21,
+                    cursorPosition.x,
+                    0x7f};
+#elif defined SH1106
+                uint8_t commandSequence[] = {0xb0+cursorPosition.y+1,
+                    0x21,
+                    0x00+((2+cursorPosition.x) & (0x0f)),
+                    0x10+( ((2+cursorPosition.x) & (0xf0)) >> 4 ),
+                    0x7f};
+#endif
+                oled_command(commandSequence, sizeof(commandSequence));
+                cursorPosition.x += sizeof(FONT[0])*3;
+            }
+            else if (charMode == QUADRUPLESIZE) {
+                uint32_t quadrupleChar[sizeof(FONT[0])];
+                uint8_t qChar;
+                if ((cursorPosition.x+4*sizeof(FONT[0]))>DISPLAY_WIDTH) break;
+                
+                for (uint8_t i=0; i < sizeof(FONT[0]); i++) {
+                    quadrupleChar[i] = 0;
+                    qChar = pgm_read_byte(&(FONT[(uint8_t)c][i]));
+                    for (uint8_t j=0; j<8; j++) {
+                        if ((qChar & (1 << j))) {
+                            quadrupleChar[i] |= (1 << (j*4));
+                            quadrupleChar[i] |= (1 << ((j*4)+1));
+                            quadrupleChar[i] |= (1 << ((j*4)+2));
+                            quadrupleChar[i] |= (1 << ((j*4)+3));
+                        }
+                    }
+                }
+                uint8_t data[sizeof(FONT[0])*4];
+                for (uint8_t i = 0; i < sizeof(FONT[0]); i++)
+                {
+                    // print font to ram, print 6 columns
+                    data[i*4]=(quadrupleChar[i] & 0xff);
+                    data[(i*4)+1]=(quadrupleChar[i] & 0xff);
+                    data[(i*4)+2]=(quadrupleChar[i] & 0xff);
+                    data[(i*4)+3]=(quadrupleChar[i] & 0xff);
+                }
+                oled_data(data, sizeof(FONT[0])*4);
+#if defined (SSD1306) || defined (SSD1309)
+                uint8_t commandSequence[] = {0xb0+cursorPosition.y+1,
+                    0x21,
+                    cursorPosition.x,
+                    0x7f};
+#elif defined SH1106
+                uint8_t commandSequence[] = {0xb0+cursorPosition.y+1,
+                    0x21,
+                    0x00+((2+cursorPosition.x) & (0x0f)),
+                    0x10+( ((2+cursorPosition.x) & (0xf0)) >> 4 ),
+                    0x7f};
+#endif
+                    
+                cursorPosition.x += sizeof(FONT[0])*4;
+            }
+            else {
                 uint8_t data[sizeof(FONT[0])];
                 if ((cursorPosition.x+sizeof(FONT[0]))>DISPLAY_WIDTH) break;
                 

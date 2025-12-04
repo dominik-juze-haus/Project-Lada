@@ -20,8 +20,8 @@ List of parts:
 - HC-SR04 ultrasonic sensor (weather sealed) - 4 pcs
 - SSH1106 128 x 64 OLED i2c display
 - KY-040 rotary encoder with button
-- Siemens QAD21/209 Ni1000 Thermal sensor (passive) - 2 pcs
-- Optical switch Groove H2010 driven by LM393
+- Regin TG-AH4/PT1000 Thermal sensor (passive) - 2 pcs
+- Hall's sensor module 3144 driven by AZ393M (Digital mode)
 - Wiring (jumpwires, USB cable, breadboard...)
 
 

@@ -90,6 +90,7 @@ extern "C" {
 
 #define NORMALSIZE 1
 #define DOUBLESIZE 2
+#define DOUBLEBOLD 3
     
 #define OLED_DISP_OFF 0xAE
 #define OLED_DISP_ON 0xAF
