@@ -86,7 +86,7 @@ volatile uint8_t data_process_flag = 0; // Flag to indicate data processing
 volatile uint8_t display_update_flag = 0; // Flag to indicate display update
 volatile uint8_t speed_sensor_pulse_flag = 0; // Flag for speed sensor pulse detection
 volatile uint8_t oled_switch_page = 0; // OLED display page switch flag
-volatile uint8_t health_check_flag = 0; // Health check flag
+volatile uint8_t health_check_flag = 0; // Health check flag 0 - normal, 1 - checking sensors, 2 - Oil high, 3 - Coolant high
 
 // -- Indexes ------------------------------
 volatile uint8_t current_systems = 0; // index for the current used sensor system/page on OLED display (0 - RPM, 1 - Temperature, 2 - Speed, 3 - Parking sensor, 4 - health check)
@@ -331,12 +331,21 @@ int main(void)
             
             if (health_check_flag == 1)
             {
-              if (temperature_sensor_data[2] > 120 &&  temperature_sensor_data[2] < 200 || temperature_sensor_data[3] > 100 && temperature_sensor_data[3] < 200 ) // If Oil temperature exceeds redline threshold
+              if ((temperature_sensor_data[2] > 120 &&  temperature_sensor_data[2] < 200)) // If Oil temperature exceeds redline threshold
               {   
-                  data_process_flag = 0; // Reset data processing flag
-                  current_systems = 1; // Switch to Temperature page
-                  health_check_flag = 0; // Reset health check flag
-                  oled_switch_page = 1; // Set flag to switch OLED page
+                data_process_flag = 0; // Reset data processing flag
+                health_check_flag = 2; // Set health check flag to Oil high
+              }
+              else
+              {
+                data_process_flag = 0; // Reset data processing flag
+                health_check_flag = 0; // Reset health check flag
+              }
+
+              if ((temperature_sensor_data[3] > 110 &&  temperature_sensor_data[3] < 200)) // If Coolant temperature exceeds redline threshold
+              {   
+                data_process_flag = 0; // Reset data processing flag
+                health_check_flag = 3; // Set health check flag to Coolant high
               }
               else
               {
@@ -421,7 +430,7 @@ int main(void)
               {   
                   speed_sensor_pulse_flag = 0; // Reset pulse flag
                   magnetic_speed_value[0]++; // Increment pulse count
-                  uart_puts("PULSE            \r\n");
+                  //uart_puts("PULSE            \r\n"); // Debugging uart output
               }
         }
 
@@ -513,8 +522,8 @@ int main(void)
                 
                 char uart_buffer[30]; // Buffer for UART transmission
 
-                sprintf(uart_buffer, "RPM: %d rpm\r\n", rpm_value[0]);
-                uart_puts(uart_buffer); //
+                //sprintf(uart_buffer, "RPM: %d rpm\r\n", rpm_value[0]);
+                //uart_puts(uart_buffer); //
 
                 oled_gotoxy(4, 3);
                 oled_charMode(DOUBLEBOLD);
@@ -607,9 +616,9 @@ int main(void)
             {
               char uart_buffer[50]; // Buffer for UART transmission
               itoa(magnetic_speed_value[4], uart_buffer, 10);
-              uart_puts("Speed: ");
-              uart_puts(uart_buffer);
-              uart_puts(" km/h\r\n");
+              //uart_puts("Speed: ");
+              //uart_puts(uart_buffer);
+              //uart_puts(" km/h\r\n");
 
               oled_gotoxy(5, 3);
               oled_charMode(DOUBLESIZE);
@@ -744,6 +753,19 @@ ISR(TIMER1_OVF_vect)
       health_check_flag = 1; // Switch to health check every 10 seconds
       data_process_flag = 1; // Set flag to process new temperature data
       oled_switch_page = 0; // Set flag NOT to switch OLED page
+  }
+  if (health_check_flag == 2 && current_systems != 1) // If in health check state
+  {
+      GPIO_toggle(&INDICATOR_LED_PORT, INDICATOR_LED_PIN1); // Slow toggle Oil Temp Redline LED
+  }
+  if (health_check_flag == 3 && current_systems != 1) // If in health check state
+  {
+      GPIO_toggle(&INDICATOR_LED_PORT, INDICATOR_LED_PIN2); // Slow toggle Coolant Temp Redline LED
+  }
+  if (health_check_flag == 0 && current_systems != 1 && rpm_value[1] == 0 && current_systems != 3) // If not in health check state, not on temperature page, no RPM redline and not on parking sensor page
+  {
+      GPIO_write_low(&INDICATOR_LED_PORT, INDICATOR_LED_PIN1); // Turn OFF Oil Temp Redline LED
+      GPIO_write_low(&INDICATOR_LED_PORT, INDICATOR_LED_PIN2); // Turn OFF Coolant Temp Redline LED
   }
 
 
