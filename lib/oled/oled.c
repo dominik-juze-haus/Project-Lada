@@ -293,6 +293,7 @@ void oled_putc(char c){
                 }
                 cursorPosition.x += sizeof(FONT[0])*2;
             } 
+            // Modified section by Dominik Chalupka for Bold Doublesized characters
             else if (charMode == DOUBLEBOLD) {
                 uint32_t tripleChar[sizeof(FONT[0])];
                 uint8_t tChar;
