@@ -18,11 +18,15 @@ Optional ambitious features are:
 List of parts:
 - Atmega 328P microcontroller on an UNO R3 board
 - HC-SR04 ultrasonic sensor (weather sealed) - 4 pcs
-- SSH1106 128 x 64 OLED i2c display
+- SSH1106 128 x 64 OLED i2c display (SH1106 tested)
 - KY-040 rotary encoder with button
 - Regin TG-AH4/PT1000 Thermal sensor (passive) - 2 pcs
 - Hall's sensor module 3144 driven by AZ393M (Digital mode)
 - Wiring (jumpwires, USB cable, breadboard...)
+
+### Circuit diagram of the system
+<img width="2475" height="1663" alt="Project_Lada circuit" src="https://github.com/user-attachments/assets/01651812-494b-4f4f-b388-f2ae32adcc0d" />
+
 
 ## Software description
 When initialized, the arduino displays the default page, which shows the RPM of the vehicle. Pages can be switched via a rotary encoder, each turn (clockwise and counterclockwise) switches between pages: **RPM**, **temperature measurements**, **speed measurements**. When the rotary encoder is pressed, the **parking sensors** page are accessed.
@@ -34,6 +38,9 @@ When initialized, the arduino displays the default page, which shows the RPM of 
 **Temperature** page displays the oil and coolant temperatures obtained and calculated through ADC from passive thermal sensors. When the temperature exceedes a healthy value, a corresponding LED lights up.
 
 **Speed measurement** uses the digital output of Hall‘s probe. By passing a magnet near the probe, it measures the changes in the near magnetic field, and when its at its maximum value, it triggers a threshold and sends out a simple signal, which frequency is then valued as a speed measurement and displayed on the screen.
+
+### Flowchart of the software operation
+<img width="717" height="1672" alt="AVR Project flowchart" src="https://github.com/user-attachments/assets/06558dd8-e650-4bb6-b629-dd126d55d375" />
 
 
 ## Modules
@@ -151,4 +158,5 @@ When subsystem turns off
 Hardware solution
 Halls switch triggered by a magnet in the integrated speedometer
 
-<img width="1483" height="1102" alt="SimulIdeSchematic" src="https://github.com/user-attachments/assets/c0927a90-1865-4c8d-9ecf-306a224259e3" />
+
+
