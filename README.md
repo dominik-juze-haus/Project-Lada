@@ -141,6 +141,7 @@ reading the voltage difference between the alternator and ditributor or halls/op
 
 ## Speed measurement
 
+Knowing the speed at which you're driving is crucial to have in any vehicle
 ## Module function description
 
 Subsystem is summoned when
@@ -160,7 +161,7 @@ When subsystem turns off
 - the sensor readings are disabled
 
 Hardware solution
-Halls switch triggered by a magnet in the integrated speedometer
+- Hall's switch triggered by a magnet, that is attached to a wheel. Speed is measured by the frequency of passings.
 
 
 
