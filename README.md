@@ -87,7 +87,8 @@ This particular car model doesn't have a reliable oil temperature readings and w
 Old carburetor cars are prone to overheating, especialy those from the eastern block. 
 Temperature monitoring is then crucial for the car health and the owners wallets.
 
-Software description
+## Module function description
+
 Subsystem is summoned when
 - it's corresponding index is dialed with the rotary encoder
 
@@ -114,7 +115,8 @@ For both practical and demonstration purposes, the system uses Pt1000 sensors re
 ### RPM readings
 Lada 1300 misses a tachometer and uses only a speed gauge. Retrofiting it with a digital system will ensure optimal shifting timing and prevent overreving the engine.
 
-Software description
+## Module function description
+
 Subsystem is summoned when
 - it's corresponding index is dialed with the rotary encoder
 
@@ -139,7 +141,8 @@ reading the voltage difference between the alternator and ditributor or halls/op
 
 ### Speed measurment
 
-Software description
+## Module function description
+
 Subsystem is summoned when
 - it's corresponding index is dialed with the rotary encoder
 
