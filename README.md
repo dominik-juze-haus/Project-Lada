@@ -40,8 +40,7 @@ When initialized, the arduino displays the default page, which shows the RPM of 
 **Speed measurement** uses the digital output of Hall‘s probe. By passing a magnet near the probe, it measures the changes in the near magnetic field, and when its at its maximum value, it triggers a threshold and sends out a simple signal, which frequency is then valued as a speed measurement and displayed on the screen.
 
 ### Flowchart of the software operation
-<img width="6544" height="6768" alt="image" src="https://github.com/user-attachments/assets/ef1dc973-42c3-47ea-9bb4-e1c52f6dafa2" />
-
+<img width="717" height="1672" alt="AVR Project flowchart" src="https://github.com/user-attachments/assets/c87b9b1c-ebaf-4c07-b1e1-f1dc4a48dd3c" />
 
 
 ## Modules
