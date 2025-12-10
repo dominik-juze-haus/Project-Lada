@@ -1,0 +1,27 @@
+var group__ex4__adc =
+[
+    [ "adc_struct", "structadc__struct.html", null ],
+    [ "ADC_CH0", "group__ex4__adc.html#ga1e33b83bfcf4433eb2e8c6e818b5dff8", null ],
+    [ "ADC_CH1", "group__ex4__adc.html#ga7d351ed34ca3ff55d1681ee84a243090", null ],
+    [ "ADC_CH2", "group__ex4__adc.html#ga2bb0c1b2de3aa355244417d9a42a8966", null ],
+    [ "ADC_CH3", "group__ex4__adc.html#ga6ae98bab335f9d073a58d70e7ba4f844", null ],
+    [ "ADC_CH4", "group__ex4__adc.html#ga3648bb19b5c3735452fee16c835afc43", null ],
+    [ "ADC_CH5", "group__ex4__adc.html#ga479d965dae60f80b698f0dd6a348e30a", null ],
+    [ "ADC_CH6", "group__ex4__adc.html#gaec122320eeb7216887651ef5f1c73442", null ],
+    [ "ADC_CH7", "group__ex4__adc.html#gaea897f597c4ee7b003920953fb213638", null ],
+    [ "ADC_DATA_10BIT", "group__ex4__adc.html#ga166c1f0adb5ea80087faac7746224568", null ],
+    [ "ADC_DATA_8BIT", "group__ex4__adc.html#gae57d5a32e1a79311452cc1cdcb570614", null ],
+    [ "ADC_PSC128", "group__ex4__adc.html#ga0d1ee1a83dd4cc2104ddb943a06b881b", null ],
+    [ "ADC_PSC16", "group__ex4__adc.html#ga4d372cc3fd8e1590ba3c73d22d54115c", null ],
+    [ "ADC_PSC2", "group__ex4__adc.html#ga17dcbe58ddaee17c0a9240f875c5fafa", null ],
+    [ "ADC_PSC32", "group__ex4__adc.html#ga0e7e1b2aaf0da2d28cabe6ed160da553", null ],
+    [ "ADC_PSC4", "group__ex4__adc.html#ga6c2340ea20750be3852fb32e629a7091", null ],
+    [ "ADC_PSC64", "group__ex4__adc.html#ga20fdb2079b33236cb1c64bbe68677c4d", null ],
+    [ "ADC_PSC8", "group__ex4__adc.html#gaaca57247c775b90985187abd9306e7e2", null ],
+    [ "ADC_VREF_AREF", "group__ex4__adc.html#gabca684824d1a447a7ddb9375efaec794", null ],
+    [ "ADC_VREF_AVCC", "group__ex4__adc.html#gad8c99ef2e1a54e5ac6ac5f2a46609fdc", null ],
+    [ "ADC_VREF_INTERNAL", "group__ex4__adc.html#ga2da1d74b5e84e23e53be679cf9a92ed5", null ],
+    [ "adc_t", "group__ex4__adc.html#ga42ecc0de46f101787651edb2d4ce7435", null ],
+    [ "ADC_Init", "group__ex4__adc.html#ga267a1cbbb85c96881e4546647d304796", null ],
+    [ "ADC_ReadData", "group__ex4__adc.html#ga2546257ebbe2e542c98f430912dddd0e", null ]
+];
