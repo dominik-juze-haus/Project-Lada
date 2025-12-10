@@ -51,7 +51,6 @@ This goes particulary handy for vintage cars, because the outside visibility is 
 ## Module function description
 
 Subsystem is summoned when
-- shifter goes to reverse (gear shifter button)
 - parking system button is pressed (rotary encoder button)
 
 At first, parking subsystem initializes
@@ -64,7 +63,6 @@ Parking subsystem then runs
 - camera feed is displayed on a separate infotainment (instructed via UART)
 
 Subystem turns off when
-- speed exceedes 15 km/h, or gear is not in reverse
 - parking system button is pressed again
 
 When subsystem turns off
