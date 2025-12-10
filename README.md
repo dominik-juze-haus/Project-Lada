@@ -63,7 +63,7 @@ Parking subsystem then runs
 - camera feed is displayed on a separate infotainment (instructed via UART)
 
 Subystem turns off when
-- speed exceedes 15 km/h not in reverse
+- speed exceedes 15 km/h, or gear is not in reverse
 - parking system button is pressed again
 
 When subsystem turns off
