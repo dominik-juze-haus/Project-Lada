@@ -139,7 +139,7 @@ reading the voltage difference between the alternator and ditributor or halls/op
 
 ## Speed measurement
 
-Knowing the speed at which you're driving is crucial to have in any vehicle
+Knowing the speed at which you're driving is crucial to have in any vehicle, for safety, awareness and many other reasons.
 ## Module function description
 
 Subsystem is summoned when
