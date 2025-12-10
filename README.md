@@ -68,7 +68,7 @@ Subystem turns off when
 
 When subsystem turns off
 - sensor reading are disabled
-- instruction to disable the camera i sent via uart
+- instruction to disable the camera is sent via uart
 - entire system returns to the last used page (before the parking subsystem was summoned)
 
 Hardware solution
