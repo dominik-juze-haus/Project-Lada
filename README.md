@@ -48,7 +48,8 @@ When initialized, the arduino displays the default page, which shows the RPM of 
 Parking system is a welcomed feature in any car. 
 This goes particulary handy for vintage cars, because the outside visibility is also often very limited. For example, Lada 1300 has only a left mirror.
 
-#Module function description
+# Module function description
+
 Subsystem is summoned when
 - shifter goes to reverse (gear shifter button)
 - parking system button is pressed (rotary encoder button)
