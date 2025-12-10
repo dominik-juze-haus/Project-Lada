@@ -44,7 +44,7 @@ When initialized, the arduino displays the default page, which shows the RPM of 
 
 
 ## Modules
-### Parking system
+## Parking system
 Parking system is a welcomed feature in any car. 
 This goes particulary handy for vintage cars, because the outside visibility is also often very limited. For example, Lada 1300 has only a left mirror.
 
@@ -82,7 +82,7 @@ Since image decoding and processing uses a lot more processing power than that o
 At least an HD resolution camera with decent low light capabilities would be used.
 For demonstration purposes, the initializing camera signal is being sent via UART to another Arduino.
 
-### Water and Oil temperature
+## Water and Oil temperature
 This particular car model doesn't have a reliable oil temperature readings and water temperature doesn't seem to be precise. 
 Old carburetor cars are prone to overheating, especialy those from the eastern block. 
 Temperature monitoring is then crucial for the car health and the owners wallets.
@@ -112,7 +112,7 @@ When subsystem turns off
 Hardware solution
 For both practical and demonstration purposes, the system uses Pt1000 sensors read by the Arduino's AD converter.
 
-### RPM readings
+## RPM readings
 Lada 1300 misses a tachometer and uses only a speed gauge. Retrofiting it with a digital system will ensure optimal shifting timing and prevent overreving the engine.
 
 ## Module function description
@@ -139,7 +139,7 @@ When subsystem turns off
 Hardware solution
 reading the voltage difference between the alternator and ditributor or halls/optical switch
 
-### Speed measurment
+## Speed measurement
 
 ## Module function description
 
